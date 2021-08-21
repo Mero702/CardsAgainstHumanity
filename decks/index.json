@@ -1,0 +1,12 @@
+{
+    "presets": [
+        {
+            "id": "dt1",
+            "name":"dynamic"
+        },
+        {
+            "id": "dt2",
+            "name":"dynamic2"
+        }
+    ]
+}
