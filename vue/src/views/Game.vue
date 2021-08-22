@@ -1,14 +1,9 @@
 <template>
   <div>
+        <WinnerAnnouncement v-if="winner.show" :winner="winner" @hideAnnouncement="hideAnnouncement()"/>
     <ChooseUsername v-if="!isConnected" @changeUsername="joinRoom" roomID="oof" />
     <div v-else class="gameOverlay">
       <div class="game" v-if="gemeIsRunning">
-        <!-- TODO Add card component
-            TODO redo card design
-            TODO add cards to Announcment
-            TODO rework double card display in voting
-         -->
-        <WinnerAnnouncement v-if="winner.show"/>
         <ChooseAwnser v-if="phase == 'awnsering' && role == 'awnsering'" v-bind:cards="handCards" :blackCard="blackCard" @toggleCard="toggleCard" @submitAwnser="submitAwnser"/>
         <WaitingForAwnsers v-if="phase == 'awnsering' && role == 'voting'"/>
         <VoteAwnsers v-if="phase == 'voting' && role == 'voting'" @submitVotingCards="submitVotingCards"/>
@@ -94,8 +89,6 @@ export default {
           black: blackCard
         }
       } )
-    // TODO somehow get blackcard
-    // TODO get type of action 
   },
   methods: {
     joinRoom: function(username, reject) {
@@ -111,6 +104,7 @@ export default {
       this.socket.emit('start-game', (msg) => console.log(msg))
     },
     toggleCard: function(key) {
+      console.log(key);
       if(this.handCards[key].selected)
         this.handCards[key].selected = false
       else if(this.blackCard.pick > this.handCards.filter(x => x.selected).length){
@@ -129,13 +123,15 @@ export default {
           .map(c => {return {text:c.text, order: c.order}}))
       } else 
         alert('Not enough or too many cards selected')
-    }
+    },
+    hideAnnouncement: function() {
+      this.winner.show = false
+    } 
   },
 }
 </script>
 
 <style scoped>
-/* TODO change button style in general */
 .gameOverlay {
   height: 100%;
   display: grid;

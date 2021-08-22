@@ -32,7 +32,6 @@ export default {
     outline: purple 3px solid;
 }
 .card.isSelected {
-    /* TODO change selected card style */
     background: tomato;
 }
 </style>

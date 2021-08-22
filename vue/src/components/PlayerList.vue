@@ -1,7 +1,7 @@
 <template>
     <ul class="playerList">
         <li v-for="(player, key) in playerList" :key="key" class="player">
-            <p v-text="player.name" v-bind:class="{ admin: player.master}"></p>
+            <p v-text="player.name" v-bind:class="{ admin: player.isMaster}"></p>
             <p>Score: {{player.score}}</p>
         </li>
     </ul>
@@ -26,7 +26,7 @@ export default {
         padding: 1em;
     }
     .admin {
-        color: rgb(155, 0, 155);
+        color: tomato;
     }
     .player {
         display: flex;

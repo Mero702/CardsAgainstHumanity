@@ -34,11 +34,11 @@ html, body, #app, .grid {
 
 #nav a {
   font-weight: bold;
-  color: #42b983;
+  color: tomato;
 }
 
 #nav a.router-link-exact-active {
-  color: #42b983;
+  color: tomato;
 }
 .grid { 
   display: grid;
@@ -46,5 +46,14 @@ html, body, #app, .grid {
 }
 .error {
   color:rgb(194, 0, 0);
+}
+
+button {
+  background: whitesmoke;
+  color: black;
+  border: none
+}
+button:hover {
+  background: tomato;
 }
 </style>
