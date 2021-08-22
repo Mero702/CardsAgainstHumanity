@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "ajv": "^8.6.2",
     "cors": "^2.8.5",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
@@ -22,6 +22,8 @@
     "nodemon": "^2.0.12"
   },
   "nodemonConfig": {
-    "ignore": ["vue/*"]
+    "ignore": [
+      "vue/*"
+    ]
   }
 }

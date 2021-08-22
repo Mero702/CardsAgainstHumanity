@@ -48,12 +48,15 @@ html, body, #app, .grid {
   color:rgb(194, 0, 0);
 }
 
-button {
+button, input[type=submit] {
   background: whitesmoke;
   color: black;
   border: none
 }
-button:hover {
+button:hover,input[type=submit]:hover {
   background: tomato;
+}
+label:hover {
+  color: tomato;
 }
 </style>

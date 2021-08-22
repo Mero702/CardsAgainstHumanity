@@ -1,8 +1,11 @@
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid')
 const getRandomOrder = require('./scripts/getRandomOrder')
-const shuffleArray = require('./scripts/shuffleArray')
 const GameManager = require('./game/GameManager')
+const Ajv = require('ajv')
+const ajv = new Ajv()
+const packSchema = require('./scripts/packSchema')
+const validate = ajv.compile(packSchema)
 
 const express = require('express')
 const app = express()
@@ -14,16 +17,14 @@ const io = require('socket.io')(http, {
 })// ANCHOR remove for deployment
 const port = process.env.PORT || 3000
 
-//TODO only if game or room exist
-// TODO: npm uninstall bodyParser
 const cors = require('cors')// ANCHOR remove for deployment
 app.use(express.json());
 app.use(cors())
+app.use('/', express.static(__dirname+'/public'))
 
 var gameManager = new GameManager()
 
 app.get('/create', (req, res) => {
-  // TODO send number of cards in each deck
   let rawdata = fs.readFileSync(__dirname + '/decks/cah-cards-full.json')
   let pecks = JSON.parse(rawdata).map(x => {return {
     name: x.name,
@@ -33,23 +34,31 @@ app.get('/create', (req, res) => {
   res.json(pecks)
 })
 
-// TODO add user fileupload for custom decks decks
 app.post('/create', (req, res) => {
   if(!'decks' in req.body)
     return res.json({error: 'no decks selected'})
   let packNames = req.body.decks
   let rawdata = fs.readFileSync(__dirname + '/decks/cah-cards-full.json')
   let packs = JSON.parse(rawdata).filter(x => packNames.includes(x.name))
-  // TODO make this better
-  let deck = packs.reduce((x, el) => { return {
-    black: [...x.black, el.black], 
-    white: [...x.white, ...el.white]
-  }})
+  let deck = {black: [], white: []}
+  packs.forEach(pack => {
+    deck.black = deck.black.concat(pack.black)
+    deck.white = deck.white.concat(pack.white)
+  })
+  if('customDecks' in req.body)
+  {
+    let customPacks = req.body.customDecks
+    if(!validate(customPacks))
+      return res.json({error: 'no decks selected'})
+    customPacks.forEach(pack => {
+      deck.black = deck.black.concat(pack.black)
+      deck.white = deck.white.concat(pack.white)
+    })
+  }
   const id = uuidv4()
   gameManager.createGame(id, deck)
   res.json({roomID: id})
 })
-
 io.on('connection', (socket) => {
   // TODO: handle disconnect
   socket.on('join-room', (room, username, callback) => {
@@ -60,7 +69,7 @@ io.on('connection', (socket) => {
       return callback({error: `No game with the id "${room}" found`})
 
     let game = gameManager.findGame(room)
-    
+
     if(game.phase != 'TBS')
       return callback({error: `The game with the id "${room}" has alredy started`})
     
@@ -133,13 +142,17 @@ io.on('connection', (socket) => {
   })
   socket.on('submitVoting', (cards) => {
     let game = gameManager.findGame(socket.room)
-    // TODO add check if player is the one who votes
-    // TODO add announcement who wone
+    if(!game)
+      return;
+    let player = game.findPlayer(socket.id)
+
+    if(player.getRole(game.turn, game.players.length) != 'voting')
+    return;
+    
     let roundWinner = game.findPlayer(game.answers[cards].id)
     roundWinner.score += 1
     io.to(`room-${socket.room}`).emit('update-users', game.players.map(x => x.getInfo()))
     io.to(`room-${socket.room}`).emit('WinnerAnnouncement', roundWinner.name, game.currentBlackCard, game.answers[cards].cards)
-    console.log(game.answers[cards].cards);
     // Removes used cards
     game.answers.forEach( awnser => {
       game.usedCards.white.push(awnser.cards)

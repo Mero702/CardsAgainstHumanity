@@ -7,27 +7,38 @@
           <input type="checkbox" v-model="deck.checked" :id="key">
         </div>
       </div>
+      <input type="file" name="files" id="file" @change="updateFiles" accept=".json" multiple>
       <input type="submit" value="submit">
-      <p>Number of white cards: {{getWhiteCards}}</p>
-      <p>Number of black cards: {{getBlackCards}}</p>
     </form>
     <div class="error-box" v-else>
       <p>
         Opps you have encountert some error
       </p>
     </div>
+    <div class="cardCount">
+      <p>Number of packs: {{ getPackCount }}</p>
+      <p>Number of white cards: {{getWhiteCards}}</p>
+      <p>Number of black cards: {{getBlackCards}}</p>
+     </div>
   </div>
 </template>
 
 <script>
 import apiRequest from '../scripts/apiRequest.js'
+import Ajv from 'ajv'
+import packSchema from '../scripts/packSchema'
 export default {
   data() {
     return {
       decks: [],
+      customDecks: [],
+      finishedReading: true,
       error: ''
     }
   },computed: {
+    getPackCount() {
+      return this.decks.filter(x => x.checked).length
+    },
     getWhiteCards() {
        if(this.decks.filter(x => x.checked).length > 0)
         return this.decks.filter(x => x.checked).map(x => x.white).reduce((acc, x) => acc + x)
@@ -48,10 +59,35 @@ export default {
         this.error = e
       }
     },
+    updateFiles: function(event) {
+      this.customDecks = []
+      this.finishedReading = false
+
+      const reader = new FileReader();
+      reader.addEventListener('load', (e) => {
+        let pack
+        try {
+          pack = JSON.parse(e.target.result)
+          if(!this.validate(pack))
+              throw 'In valid pack format'
+        } catch (error) {
+          this.customDecks = []
+          event.target.value = ''
+          console.log(error);
+          alert("one of your files is not in the correct JSON format")
+        }
+        this.customDecks.push(pack);
+        this.finishedReading = true
+      })
+      event.target.files.forEach(file => {
+        reader.readAsText(file)
+      });
+    },
     createGame: async function() {
       try {
         const response = await apiRequest('create', 'POST', {
-          decks: this.decks.filter(x => x.checked).map(x => x.name)
+          decks: this.decks.filter(x => x.checked).map(x => x.name),
+          customDecks: this.customDecks
         })
         if(response.error)
           throw response.error
@@ -66,28 +102,44 @@ export default {
     }
   },created() {
     this.fetchDecks()
+
+    const ajv = new Ajv()
+    this.validate = ajv.compile(packSchema)
   },
 }
 </script>
 
 <style scoped>
-        form {
-            width: 80%;
-            text-align: center;
-            margin: 0 auto;
-        }
-        form > * {
-            width: 100%;
-        }
-        .decks {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            column-gap: 1ch;
-            margin: .8em 0;
-        }
-        .decks > div {
-            display: grid;
-            grid-template-columns: 1fr 1em;
-            column-gap: 1ch;
-        }
-    </style>
+  form {
+      width: 80%;
+      text-align: center;
+      margin: 0 auto;
+  }
+  form > * {
+      width: 100%;
+  }
+  .decks {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      column-gap: 1ch;
+      margin: .8em 0;
+  }
+  .decks > div {
+      display: grid;
+      grid-template-columns: 1fr 1em;
+      column-gap: 1ch;
+  }
+  .cardCount {
+    margin-top: .5em;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .cardCount > p:not(:last-child){
+    margin-right: .7ch;
+  }
+  .cardCount > p:not(:last-child)::after {
+    content: '|';
+    margin-left: .7ch;
+  }
+</style>
