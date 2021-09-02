@@ -59,6 +59,7 @@ button, input[type=submit] {
   border-radius: .8em;
   padding: .4ch;
   font-size: 1.2em;
+  cursor: pointer;
 }
 button:hover,input[type=submit]:hover {
   background: tomato;
