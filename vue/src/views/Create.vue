@@ -10,12 +10,12 @@
       <input type="file" name="files" id="file" @change="updateFiles" accept=".json" multiple>
       <input type="submit" value="submit">
     </form>
-    <div class="error-box" v-else>
+    <div class="errorBox" v-else>
       <p>
-        Opps you have encountert some error
+        Opps you have encountert some error. <br>The server is not responding. Please try again later
       </p>
     </div>
-    <div class="cardCount">
+    <div class="cardCount" v-if="!error">
       <p>Number of packs: {{ getPackCount }}</p>
       <p>Number of white cards: {{getWhiteCards}}</p>
       <p>Number of black cards: {{getBlackCards}}</p>
@@ -37,16 +37,35 @@ export default {
     }
   },computed: {
     getPackCount() {
-      return this.decks.filter(x => x.checked).length
+      let includedDecks = this.decks.filter(x => x.checked)
+      includedDecks = [...includedDecks, ...this.customDecks.map( el => { return {
+        name: el.name
+      }})]
+
+      return includedDecks.length
     },
     getWhiteCards() {
-       if(this.decks.filter(x => x.checked).length > 0)
-        return this.decks.filter(x => x.checked).map(x => x.white).reduce((acc, x) => acc + x)
+      let includedDecks = this.decks.filter(x => x.checked)
+      includedDecks = [...includedDecks, ...this.customDecks.map( el => { return {
+        name: el.name,
+        black: el.black.length,
+        white: el.white.length
+      }})]
+
+       if(includedDecks.length > 0)
+        return includedDecks.map(x => x.white).reduce((acc, x) => acc + x)
       return 0
     },
     getBlackCards() {
-      if(this.decks.filter(x => x.checked).length > 0)
-        return this.decks.filter(x => x.checked).map(x => x.black).reduce((acc, x) => acc + x)
+      let includedDecks = this.decks.filter(x => x.checked)
+      includedDecks = [...includedDecks, ...this.customDecks.map( el => { return {
+        name: el.name,
+        black: el.black.length,
+        white: el.white.length
+      }})]
+
+      if(includedDecks.length > 0)
+        return includedDecks.map(x => x.black).reduce((acc, x) => acc + x)
       return 0
     }
   },
@@ -73,7 +92,7 @@ export default {
         } catch (error) {
           this.customDecks = []
           event.target.value = ''
-          console.log(error);
+          console.error(error);
           alert("one of your files is not in the correct JSON format")
         }
         this.customDecks.push(pack);
@@ -96,7 +115,7 @@ export default {
         else
           this.error = 'An error occurred, the room may or may not have been created'
       } catch (e) {
-        console.log(e);
+        console.error(e);
         this.error = 'An error occurred, failed to create the room'
       }
     }
@@ -117,6 +136,7 @@ export default {
   }
   form > * {
       width: 100%;
+      margin: 1ch 0;
   }
   .decks {
       display: grid;

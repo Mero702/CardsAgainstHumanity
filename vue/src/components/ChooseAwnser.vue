@@ -1,7 +1,11 @@
 <template>
-    <div class="cards">
-        <Card :text="$parent.blackCard.text" :pick="$parent.blackCard.pick" type="black"/>
-        <Cards v-bind:cards="$parent.handCards" @toggleCard="$emit('toggleCard', $event)"/>
+    <div class="cardGrid">
+        <div>
+            <Card :text="$parent.blackCard.text" :pick="$parent.blackCard.pick" type="black" class="TopCard"/>
+        </div>
+        <div>
+            <Cards v-bind:cards="$parent.handCards" @toggleCard="$emit('toggleCard', $event)"/>
+        </div>
         <button class="submit" @click="$emit('submitAwnser')"> Submit </button>
     </div>
 </template>
@@ -21,16 +25,23 @@ export default {
 </script>
 
 <style scoped>
-.cards {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+.cardGrid {
+    display: grid;
+    grid-template-rows: 5fr 5fr 3em;
     height: 100%;
+    row-gap: 1ch;
+}
+.cardGrid > div {
+    height: 100%;
+}
+.TopCard {
+    margin: 0 auto;
 }
 .submit {
     width: 12em;
     height: 2.5em;
+}
+button {
+    margin: 0 auto;
 }
 </style>

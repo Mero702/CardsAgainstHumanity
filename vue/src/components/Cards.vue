@@ -1,16 +1,13 @@
 <template>
-    <div>
-        <div v-if="!Array.isArray(cards[0])" class="deck">
-            <div v-for="(card, key) in cards" :key="key" @click="$emit('toggleCard', key)">
-                <Card :text="card.text" type="white" class="card" :isSelected="card.selected"/>
+    <div class="height">
+        <div v-if="!Array.isArray(cards[0])" class="deck" :style="ItemCount">
+            <div class="single" v-for="(card, key) in cards" :key="key" @click="$emit('toggleCard', key)">
+                <Card :text="card.text" type="white" :isSelected="card.selected"/>
             </div>
         </div>
-        <div v-else class="multiDeck">
-            <div v-for="(cardStack, key) in cards" :key="key" @click="$emit('toggleCard', key)"  v-bind:class="{isSelected : cardStack.selected}" class="cardStack">
-                <div v-for="(card, key2) in cardStack" :key="key2">
-                    <Card :text="card.text" type="white" class="card"/>
-                </div>
-                <!-- <p v-text="c.text"></p> -->
+        <div v-else class="deck" :style="ItemCount">
+            <div v-for="(cardStack, key) in cards" :key="key" @click="$emit('toggleCard', key)"  v-bind:class="{isSelected : cardStack.selected}" :style="SubItemCount" class="cardStack">
+                <Card v-for="(card, key2) in cardStack" :key="key2" :text="card.text" type="white"/>
             </div>
         </div>
     </div>
@@ -23,34 +20,53 @@ export default {
     props: ['cards', 'multiple'],
     components: {
         Card
+    },
+    computed: {
+        ItemCount() {
+            return {
+                '--cardCount':  this.cards.length || 5
+            }
+        },
+        SubItemCount() {
+            return {
+                '--cardCount': (Array.isArray(this.cards[0])) ? this.cards[0].length || 5 : 1
+            }
+        },
     }
 }
 </script>
 
 <style scoped>
-.deck {
-    display: flex;
-    flex-wrap: column;
-    justify-content: center;
+.height {
+    height: 100%;
+    width: 100%;
 }
-.card {
-    margin: 0 .5em;
+.deck {
+    --cardCount: 5;
+    display: grid;
+    column-gap: .5ch;
+    grid-template-columns: repeat(var(--cardCount), 1fr);
+    height: 100%;
+    box-sizing: border-box;
+}
+.single {
+    height: 100%;
+    box-sizing: border-box;
+}
+.single > *{
+    margin: 0 auto;
 }
 .deck .card:hover, .cardStack:hover .card  {
     cursor: pointer;
     background: tomato;
 }
-.multiDeck{
-    display: flex;
-    flex-wrap: column;
+.cardStack {
+    width: 100%;
+    display: grid;
+    row-gap: .5ch;
+    grid-template-rows: repeat(var(--cardCount), 1fr);
 }
-.cardStack > *:not(:last-child) {
-    margin-bottom: 1em;
-}
-.cardStack{
-    margin: 0.5em;
-}
-.cardStack .card {
-    margin: 0
+.cardStack > * {
+    margin: 0 auto;
 }
 </style>

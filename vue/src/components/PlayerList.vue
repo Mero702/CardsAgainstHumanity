@@ -15,11 +15,13 @@ export default {
 </script>
 
 <style scoped>
-/* TODO chaneg player style */
     .playerList {
         list-style-type: none;
         margin: 0;
         padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .playerList > li {
         float: left;

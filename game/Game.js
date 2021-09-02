@@ -1,6 +1,6 @@
 const shuffleArray = require('../scripts/shuffleArray')
 const Player = require('./Player')
-module.exports = class {
+module.exports = class Game {
     constructor(id, deck) {
         this.uuid = id,
         this.pile = deck,
@@ -12,13 +12,14 @@ module.exports = class {
             white:[]
         },
         this.answers = [],
+        this.unfinishedPlayers = [],
         this.players = []
     }
     addPlayer(socketID, username, isMaster) {
         this.players.push(new Player(socketID, username, isMaster))
     }
     hasPlayerName(username) {
-        this.players.some(x => x.name == username)
+        return this.players.some(x => x.name == username)
     }
     shuffleCards() {
         this.pile.black = shuffleArray(this.pile.black)
@@ -34,5 +35,13 @@ module.exports = class {
     }
     findPlayer(id) {
         return this.players.find(p => p.socketID == id)
+    }
+    kickPlayer(id) {
+        const order = this.players.find(p => p.socketID == id).order
+        this.players.forEach(element => {
+            if(element.order > order)
+                element.order -= 1
+        })
+        this.players = this.players.filter(p => p.socketID != id)
     }
 }

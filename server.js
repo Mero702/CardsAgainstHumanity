@@ -1,5 +1,5 @@
+// ANCHOR remove uuid
 const fs = require('fs')
-const { v4: uuidv4 } = require('uuid')
 const getRandomOrder = require('./scripts/getRandomOrder')
 const GameManager = require('./game/GameManager')
 const Ajv = require('ajv')
@@ -55,12 +55,14 @@ app.post('/create', (req, res) => {
       deck.white = deck.white.concat(pack.white)
     })
   }
-  const id = uuidv4()
+  let id
+  do {
+    id = (Math.random() + 1).toString(36).substring(5)
+  } while(gameManager.ifGameExist(id))
   gameManager.createGame(id, deck)
   res.json({roomID: id})
 })
 io.on('connection', (socket) => {
-  // TODO: handle disconnect
   socket.on('join-room', (room, username, callback) => {
     // rejects a client who is already participating in a room
     if([...socket.rooms.keys()].some(x => x.includes('room-')))
@@ -72,7 +74,7 @@ io.on('connection', (socket) => {
 
     if(game.phase != 'TBS')
       return callback({error: `The game with the id "${room}" has alredy started`})
-    
+      
     if(game.hasPlayerName(username))
       return callback({error: 'Username is already taken'})
 
@@ -109,13 +111,17 @@ io.on('connection', (socket) => {
     game.players.forEach(player => {
       player.order = randomID.next().value
       game.giveCards(player)
+      if(player.getRole(game.turn, game.players.length) == 'awnsering')
+        game.unfinishedPlayers.push(player.name)
+
       io.to(player.socketID).emit('update-cards', player.cards, game.currentBlackCard, player.getRole(game.turn, game.players.length))
     })
     io.to(`room-${socket.room}`).emit('update-phase', game.phase)
+    io.to(`room-${socket.room}`).emit('update-waiting', game.unfinishedPlayers)
     io.to(`room-${socket.room}`).emit('update-users', game.players.map(x => x.getInfo()))
     callback({ok: true});
   })
-  socket.on('submitAwnser', (cards) => {
+  socket.on('submitAwnser', (cards, callback) => {
     let game = gameManager.findGame(socket.room)
     if(!game)
       return;
@@ -132,13 +138,20 @@ io.on('connection', (socket) => {
     })
     awnser.cards.sort((a,b) => a.order-b.order)
     game.answers.push(awnser)
+    game.unfinishedPlayers = game.unfinishedPlayers.filter(player => player != socket.username)
+    io.to(`room-${socket.room}`).emit('update-waiting', game.unfinishedPlayers)
     if(game.answers.length == game.players.length - 1)
       {
         game.phase = 'voting'
         let votingPlayer = game.players.find(p => p.getRole(game.turn, game.players.length) == 'voting')
+
         io.to(votingPlayer.socketID).emit('vote', game.answers.map(x => x.cards))
         io.to(`room-${socket.room}`).emit('update-phase', game.phase)
+
+        game.unfinishedPlayers = votingPlayer.name
+        io.to(`room-${socket.room}`).emit('update-waiting', game.unfinishedPlayers)
       }
+      callback(true)
   })
   socket.on('submitVoting', (cards) => {
     let game = gameManager.findGame(socket.room)
@@ -153,6 +166,8 @@ io.on('connection', (socket) => {
     roundWinner.score += 1
     io.to(`room-${socket.room}`).emit('update-users', game.players.map(x => x.getInfo()))
     io.to(`room-${socket.room}`).emit('WinnerAnnouncement', roundWinner.name, game.currentBlackCard, game.answers[cards].cards)
+
+    game.unfinishedPlayers = []
     // Removes used cards
     game.answers.forEach( awnser => {
       game.usedCards.white.push(awnser.cards)
@@ -165,8 +180,35 @@ io.on('connection', (socket) => {
     game.players.forEach(p => {
       game.giveCards(p)
       io.to(p.socketID).emit('update-cards', p.cards, game.currentBlackCard, p.getRole(game.turn, game.players.length))
+
+      if(p.getRole(game.turn, game.players.length) == 'awnsering')
+        game.unfinishedPlayers.push(p.name)
     })
+    io.to(`room-${socket.room}`).emit('update-waiting', game.unfinishedPlayers)
     io.to(`room-${socket.room}`).emit('update-phase', game.phase)
+  })
+  socket.on("disconnect", (reason) => {
+    let game = gameManager.findGame(socket.room)
+    if(!game)
+      return;
+    let player = game.findPlayer(socket.id)
+
+    game.answers = game.answers.filter(el => el.id != player.socketID)
+
+    game.kickPlayer(player.socketID)
+    io.to(`room-${socket.room}`).emit('update-users', game.players.map(x => x.getInfo()))
+
+    if(game.answers.length == game.players.length - 1)
+    {
+      game.phase = 'voting'
+      let votingPlayer = game.players.find(p => p.getRole(game.turn, game.players.length) == 'voting')
+
+      io.to(votingPlayer.socketID).emit('vote', game.answers.map(x => x.cards))
+      io.to(`room-${socket.room}`).emit('update-phase', game.phase)
+
+      game.unfinishedPlayers = votingPlayer.name
+      io.to(`room-${socket.room}`).emit('update-waiting', game.unfinishedPlayers)
+    }
   })
 })
 

@@ -1,5 +1,5 @@
 const Game = require('./Game')
-module.exports = class {
+module.exports = class GameManager {
     constructor() {
         this.games = []
     }

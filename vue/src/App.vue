@@ -9,17 +9,22 @@
 
 <script>
 export default {
-  
 }
 </script>
 
 <style>
+@font-face {
+  font-family: Helvetica-Bold;
+  src: url(/Helvetica-Bold.ttf);
+}
 html, body, #app, .grid {
   height: 100vh;
   width: 100vw;
-  font-family: 'Open Sans', Arial, sans-serif;
+  font-family: Helvetica-Bold;
+  /* font-family: 'Open Sans', Arial, sans-serif; */
   background: #2C313A;
   color: #c0c0c0;
+  overflow: overlay;
 }
 * {
   padding: 0;
@@ -51,12 +56,28 @@ html, body, #app, .grid {
 button, input[type=submit] {
   background: whitesmoke;
   color: black;
-  border: none
+  border: none;
+  border-radius: .8em;
+  padding: .4ch;
+  font-size: 1.2em;
 }
 button:hover,input[type=submit]:hover {
   background: tomato;
 }
 label:hover {
   color: tomato;
+}
+.errorBox {
+  font-size: 1.8em;
+  margin: .5em;
+}
+.errorBox::before {
+  color: tomato;
+  content: 'Error:';
+}
+.centerContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

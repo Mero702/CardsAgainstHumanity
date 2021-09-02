@@ -2,9 +2,9 @@
     <div class="bg" @click.self="$emit('hideAnnouncement')">
         <div class="modal display" @click.prevent>
             <p class="closeBtn" @click="$emit('hideAnnouncement')">&#xd7;</p>
-            <p>Pick from {{winner.name}}</p>
+            <h3>Winner is {{winner.name}}</h3>
             <Card :text="winner.black.text" type="black" :pick="winner.black.pick" class="black"/>
-            <div class="whiteCards">
+            <div class="whiteCards" :style="countItems">
                 <Card v-for="(card, key) in winner.white" :key="key" :text="card.text" type="white" class="white" />
             </div>
         </div>
@@ -18,6 +18,13 @@ export default {
     props: ['winner'],
     components: {
         Card
+    },
+    computed: {
+        countItems() {
+            return {
+                '--itemCount': this.winner.white.length || 1
+            }
+        }
     }
 }
 </script>
@@ -32,13 +39,14 @@ export default {
     left: 0;
 }
 .modal {
-    height: 35em;
-    width: 55em;
+    height: 70vh;
+    width: 80vw;
     background: #2C313A;
     z-index: 1;
     position: absolute;
     margin: auto;
     top: 0; left: 0; bottom: 0; right: 0;
+    border-radius: 1em;
 }
 .bg:hover {
     cursor: pointer;
@@ -57,16 +65,21 @@ export default {
     cursor: pointer;
 }
 .display {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+    display: grid;
+    row-gap: 1ch;
+    grid-template-rows: 2em 1fr 1fr;
+}
+.display > *, .whiteCards > * {
+    margin: 0 auto;
 }
 .whiteCards {
-    display: flex;
-    flex-direction: row;
+    --itemCount: 1;
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(var(--itemCount), 1fr);
+    margin-bottom: 1ch;
 }
-.white {
-    margin: 0 .5em
+h3 {
+    padding: 1ch 0;
 }
 </style>
