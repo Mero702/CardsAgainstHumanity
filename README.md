@@ -5,6 +5,6 @@ download the packs from https://crhallberg.com/cah/ and move it in the decks fol
 
 ## Installation
 - install nodejs
-- clone repositori
+- clone repository
 - npm i
 - npm run start
