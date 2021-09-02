@@ -37,12 +37,11 @@ html, body, #app, .grid {
   background: #282C34;
 }
 
-#nav a {
-  font-weight: bold;
+a {
   color: tomato;
 }
 
-#nav a.router-link-exact-active {
+a.router-link-exact-active {
   color: tomato;
 }
 .grid { 
