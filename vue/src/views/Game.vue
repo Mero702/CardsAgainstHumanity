@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       renderComponent: true,
-      socket: io('localhost:3000'),
+      socket: io(),
       isConnected: false,
       isMaster: false,
       gemeIsRunning: false,

@@ -1,7 +1,6 @@
 export default async function(path, method, data) {
-    const response = await fetch(`http://localhost:3000/${path}`, {
+    const response = await fetch(`/${path}`, {
         method: method,
-        mode: 'cors',
         headers: {
             'Content-Type': 'application/json'
         },

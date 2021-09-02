@@ -1,4 +1,3 @@
-// ANCHOR remove uuid
 const fs = require('fs')
 const getRandomOrder = require('./scripts/getRandomOrder')
 const GameManager = require('./game/GameManager')
@@ -10,16 +9,10 @@ const validate = ajv.compile(packSchema)
 const express = require('express')
 const app = express()
 const http = require('http').Server(app)
-const io = require('socket.io')(http, {
-  cors: {
-    origin: '*'
-  }
-})// ANCHOR remove for deployment
+const io = require('socket.io')(http)
 const port = process.env.PORT || 3000
 
-const cors = require('cors')// ANCHOR remove for deployment
-app.use(express.json());
-app.use(cors())
+app.use(express.json())
 app.use('/', express.static(__dirname+'/public'))
 
 var gameManager = new GameManager()
