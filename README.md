@@ -20,8 +20,11 @@ if it's not installed, than install it
 - run npm run start
 
 ### via Docker
-Coming soon
+Install docker if not installed [Guid to install docker](https://docs.docker.com/get-docker/)
 
+```shell
+# docker run -p 8080:8080/tcp mero702/cah
+```
 
 ## Resources
 The card pack is from https://crhallberg.com/cah/
