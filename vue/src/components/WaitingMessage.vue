@@ -27,7 +27,7 @@ export default {
     data() {
         return {
             title: {
-                voting: 'Waiting for other players to awnser',
+                voting: 'Waiting for other players to answer',
                 finish: 'Waiting for player to choose winning card (combo)'
             },
             toggleText: true
