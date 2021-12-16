@@ -158,7 +158,7 @@ io.on('connection', (socket) => {
     let roundWinner = game.findPlayer(game.answers[cards].id)
     roundWinner.score += 1
     io.to(`room-${socket.room}`).emit('update-users', game.players.map(x => x.getInfo()))
-    io.to(`room-${socket.room}`).emit('WinnerAnnouncement', roundWinner.name, game.currentBlackCard, game.answers[cards].cards)
+    io.to(`room-${socket.room}`).emit('WinnerAnnouncement', roundWinner.name, game.currentBlackCard, game.answers, cards)
 
     game.unfinishedPlayers = []
     // Removes used cards

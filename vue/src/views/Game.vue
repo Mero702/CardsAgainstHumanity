@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       renderComponent: true,
-      socket: io(),
+      socket: io('localhost:3000'),
       isConnected: false,
       isMaster: false,
       gemeIsRunning: false,
@@ -90,11 +90,12 @@ export default {
       this.socket.on('vote', (awnsers) => {
         this.voteAwnsers = awnsers
       })
-      this.socket.on("WinnerAnnouncement", (username, blackCard, whiteCards) => {
+      this.socket.on("WinnerAnnouncement", (username, blackCard, cards, winner) => {
+        cards[0] = cards.splice(winner, 1, cards[0])[0];
         this.winner = {
           show: true,
           name: username,
-          white: whiteCards,
+          cards: cards,
           black: blackCard
         }
       })

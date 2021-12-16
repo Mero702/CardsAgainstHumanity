@@ -4,8 +4,8 @@
             <p class="closeBtn" @click="$emit('hideAnnouncement')">&#xd7;</p>
             <h3>Winner is {{winner.name}}</h3>
             <Card :text="winner.black.text" type="black" :pick="winner.black.pick" class="black"/>
-            <div class="whiteCards" :style="countItems">
-                <Card v-for="(card, key) in winner.white" :key="key" :text="card.text" type="white" class="white" />
+            <div class="whiteCards" :style="countItems" v-bind:class="{ first: index == 0, last: index == (winner.cards.length - 1)}">
+                <Card v-for="(card, key) in winner.cards[index].cards" :key="key" :text="card.text" type="white" class="white" />
             </div>
         </div>
     </div>
@@ -19,10 +19,15 @@ export default {
     components: {
         Card
     },
+    data() {
+        return {
+            index: 0
+        }
+    },
     computed: {
         countItems() {
             return {
-                '--itemCount': this.winner.white.length || 1
+                '--itemCount': this.winner.cards[this.index].cards.length || 1
             }
         }
     }
