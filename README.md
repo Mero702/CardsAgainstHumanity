@@ -23,7 +23,7 @@ if it's not installed, than install it
 Install docker if not installed [Guid to install docker](https://docs.docker.com/get-docker/)
 
 ```shell
-# docker run -p 127.0.0.1:80:8080/tcp mero702/cah
+# docker run -p 127.0.0.1:80:8080/tcp mero702/cah:stable
 ```
 
 ## Resources
