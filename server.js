@@ -8,8 +8,17 @@ const validate = ajv.compile(packSchema)
 
 const express = require('express')
 const app = express()
+
+const cors = require('cors')
+app.use(cors())
+
 const http = require('http').Server(app)
-const io = require('socket.io')(http)
+const io = require('socket.io')(http, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"]
+  }
+})
 const port = process.env.PORT || 3000
 
 app.use(express.json())

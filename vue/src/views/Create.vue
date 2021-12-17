@@ -162,4 +162,5 @@ export default {
     content: '|';
     margin-left: .7ch;
   }
+
 </style>
