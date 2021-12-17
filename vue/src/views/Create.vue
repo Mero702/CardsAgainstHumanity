@@ -7,7 +7,11 @@
           <input type="checkbox" v-model="deck.checked" :id="key">
         </div>
       </div>
-      <input type="file" name="files" id="file" @change="updateFiles" accept=".json" multiple>
+      <div class="upload">
+        <p>Additionaly you can upload your own Pack here: </p>
+        <input type="file" name="files" id="file" @change="updateFiles" accept=".json" multiple>
+        <router-link to="/help">Help</router-link>
+      </div>
       <input type="submit" value="submit">
     </form>
     <div class="errorBox" v-else>
@@ -129,7 +133,15 @@ export default {
 </script>
 
 <style scoped>
+  .create {
+    display: grid;
+    grid-template-rows: 1fr 3em;
+  }
   form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
       width: 80%;
       text-align: center;
       margin: 0 auto;
@@ -161,6 +173,13 @@ export default {
   .cardCount > p:not(:last-child)::after {
     content: '|';
     margin-left: .7ch;
+  }
+  .upload {
+    text-align: left;
+  }
+  .upload > *{
+    display: inline;
+    text-align: left;
   }
 
 </style>

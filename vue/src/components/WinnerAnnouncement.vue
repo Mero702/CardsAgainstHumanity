@@ -1,10 +1,10 @@
 <template>
     <div class="bg" @click.self="$emit('hideAnnouncement')">
-        <div class="modal display" @click.prevent>
+        <div class="modal display" @click.prevent @wheel="onScroll">
             <p class="closeBtn" @click="$emit('hideAnnouncement')">&#xd7;</p>
             <h3>Winner is {{winner.name}}</h3>
             <Card :text="winner.black.text" type="black" :pick="winner.black.pick" class="black"/>
-                <div class="slider" v-on:scroll.passive="onScroll">
+                <div class="slider">
                     <div class="btn left" v-bind:class="{disabled : index == 0}" @click="slide()"> <img :src="arrow" /></div>
                         <div class="whiteCards" :style="countItems">
                             <Card v-for="(card, key) in winner.cards[index].cards" :key="key" :text="card.text" type="white" class="white" />
@@ -40,8 +40,12 @@ export default {
                     this.index++
             }
         },
-        onscroll: function(e) {
-            console.log(e)
+        onScroll: function(event) {
+            if(event.deltaY > 0) {
+                this.slide(1)
+            } else if(event.deltaY < 0) {
+                this.slide()
+            }
         }
     },
     computed: {
@@ -94,7 +98,7 @@ export default {
     row-gap: 1ch;
     grid-template-rows: 2em 1fr 1fr;
     justify-items: center;
-    padding-bottom: 1ch;
+    padding-bottom: 3ch;
 }
 .whiteCards {
     --itemCount: 1;
@@ -120,13 +124,10 @@ h3 {
 .slider .btn.left{
     transform: rotate(180deg) scale(1.5);
 }
-.slider .btn.left{
-    transform: rotate(180deg) scale(1.5);
-}
 .slider .btn.disabled{
     filter: invert(.3)
 }
 .slider .btn:not(.disabled):hover img{
-    filter: invert(1);
+    cursor: pointer;
 }
 </style>

@@ -72,9 +72,6 @@ export default {
       this.playerList.sort((a,b) => a.order - b.order)
     })
     this.socket.on('update-cards', (cards, blackCard, role) => {
-      console.log(cards);
-      console.log(blackCard);
-      console.log(role);
       this.handCards = cards.map( x => {return {selected: false, order: 0, ...x}})
       this.gemeIsRunning = true
       this.blackCard = blackCard
