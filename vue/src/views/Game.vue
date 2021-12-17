@@ -55,7 +55,7 @@ export default {
     return {
       renderComponent: true,
       clipboardSVG: require('../../public/clipboard.svg'),
-      socket: io('localhost:3000'),
+      socket: io(), // 'localhost:3000'
       isConnected: false,
       isMaster: false,
       gemeIsRunning: false,

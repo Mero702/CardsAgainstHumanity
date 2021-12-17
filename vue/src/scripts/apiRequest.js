@@ -1,5 +1,5 @@
 export default async function(path, method, data) {
-    const response = await fetch(`http://localhost:3000/${path}`, {
+    const response = await fetch(`/${path}`, { // http://localhost:3000
         method: method,
         headers: {
             'Content-Type': 'application/json'
