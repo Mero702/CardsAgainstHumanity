@@ -10,7 +10,16 @@
         <WaitingMessage v-if="phase == 'voting' && role == 'awnsering'" type="finish" :players="unfinishedPlayers" />
       </div>
       <div v-else class="centerContent">
-        <button @click="startGame" v-if="isMaster" class="bigBtn">Start game</button>
+        <div v-if="isMaster" class="startScreen">
+          <div class="shareId">
+            <details> 
+              <summary> Click to show the room id</summary>
+              {{$route.params.roomID}}
+              </details> 
+            <p>copy link: <button @click="copyLink"><img :src="clipboardSVG" /></button></p>
+          </div>
+          <button @click="startGame" class="bigBtn">Start game</button>
+        </div>
         <p v-else>
           Waiting for game Master to start
         </p>
@@ -45,7 +54,8 @@ export default {
   data() {
     return {
       renderComponent: true,
-      socket: io(),
+      clipboardSVG: require('../../public/clipboard.svg'),
+      socket: io('localhost:3000'),
       isConnected: false,
       isMaster: false,
       gemeIsRunning: false,
@@ -72,9 +82,6 @@ export default {
       this.playerList.sort((a,b) => a.order - b.order)
     })
     this.socket.on('update-cards', (cards, blackCard, role) => {
-      console.log(cards);
-      console.log(blackCard);
-      console.log(role);
       this.handCards = cards.map( x => {return {selected: false, order: 0, ...x}})
       this.gemeIsRunning = true
       this.blackCard = blackCard
@@ -90,11 +97,12 @@ export default {
       this.socket.on('vote', (awnsers) => {
         this.voteAwnsers = awnsers
       })
-      this.socket.on("WinnerAnnouncement", (username, blackCard, whiteCards) => {
+      this.socket.on("WinnerAnnouncement", (username, blackCard, cards, winner) => {
+        cards[0] = cards.splice(winner, 1, cards[0])[0];
         this.winner = {
           show: true,
           name: username,
-          white: whiteCards,
+          cards: cards,
           black: blackCard
         }
       })
@@ -143,6 +151,14 @@ export default {
     },
     hideAnnouncement: function() {
       this.winner.show = false
+    },
+    copyLink: function() {
+      if (!navigator.clipboard) {
+        alert("Your browser dosen't suport this feature");
+      } else {
+        navigator.clipboard.writeText(window.location.href).then( () => alert('Coppied to clipboard'))
+        
+      }
     } 
   },
 }
@@ -155,11 +171,24 @@ export default {
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 5em;
 }
+.startScreen {
+  display: grid;
+  gap: 2.5ch;
+  grid-template-rows: 1fr 3fr;
+}
+.startScreen .shareId {
+  display: flex;
+  justify-content: space-around;
+  align-items:baseline;
+  height: 3em;
+}
+.startScreen .shareId button{
+  background-color: transparent;
+}
 .bigBtn {
   font-size: 5em;
-  /* background-color: #fff0;
-  color: whitesmoke;
-  border: tomato 1px solid; */
+  max-width: 6em;
+  max-height: 1.8em;
   background: whitesmoke;
   color: black;
 }

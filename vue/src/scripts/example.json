@@ -1,0 +1,15 @@
+{
+    "name": "Name of your Pack",
+    "white": [{
+        "text": "Answercard 1"
+    }, {
+        "text": "Answercard 2"
+    }],
+    "black": [{
+        "text": "Question 1",
+        "pick": 2
+    }, {
+        "text": "Questions",
+        "pick": 1
+    }]
+}

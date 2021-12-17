@@ -8,8 +8,17 @@ const validate = ajv.compile(packSchema)
 
 const express = require('express')
 const app = express()
+
+const cors = require('cors')
+app.use(cors())
+
 const http = require('http').Server(app)
-const io = require('socket.io')(http)
+const io = require('socket.io')(http, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"]
+  }
+})
 const port = process.env.PORT || 3000
 
 app.use(express.json())
@@ -158,7 +167,7 @@ io.on('connection', (socket) => {
     let roundWinner = game.findPlayer(game.answers[cards].id)
     roundWinner.score += 1
     io.to(`room-${socket.room}`).emit('update-users', game.players.map(x => x.getInfo()))
-    io.to(`room-${socket.room}`).emit('WinnerAnnouncement', roundWinner.name, game.currentBlackCard, game.answers[cards].cards)
+    io.to(`room-${socket.room}`).emit('WinnerAnnouncement', roundWinner.name, game.currentBlackCard, game.answers, cards)
 
     game.unfinishedPlayers = []
     // Removes used cards
