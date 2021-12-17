@@ -8,9 +8,9 @@
         </div>
       </div>
       <div class="upload">
-        <p>Additionaly you can upload your own Pack here: </p>
+        <p>Additionaly you can upload your own Pack here: </p> <br><br>
         <input type="file" name="files" id="file" @change="updateFiles" accept=".json" multiple>
-        <router-link to="/help">Help</router-link>
+        for more informations visit <router-link to="/help">help</router-link>
       </div>
       <input type="submit" value="submit">
     </form>
