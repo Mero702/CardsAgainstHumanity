@@ -4,9 +4,9 @@
 
 2. [Installation](#Installation)
    
-   1. [via Nodejs](#via_Nodejs)
+   1. [via Nodejs](#via-Nodejs)
    
-   2. [via Docker](#via_Docker)
+   2. [via Docker](#via-Docker)
 
 3. [Resources](#Resources)
 
@@ -18,7 +18,7 @@ But this cards against humanity is build with NodeJS and socket.io.
 
 ## Installation
 
-### via_Nodejs
+### via Nodejs
 
 Make sure NodeJS is installed
 
@@ -36,7 +36,7 @@ if it's not installed, than install it
 - you can set the environment variable "PORT" to a specific port. (if not manually set the default port is 3000)
 - run npm run start
 
-### via_Docker
+### via Docker
 
 Install docker if not installed [Guide to install docker](https://docs.docker.com/get-docker/)
 
