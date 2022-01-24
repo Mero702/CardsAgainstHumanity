@@ -1,6 +1,6 @@
 # Cards Against Humanity
 
-1. [Overview](# Overview)
+1. [Overview](#Overview)
 
 2. [Installation](#Installation)
    
