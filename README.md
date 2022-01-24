@@ -4,7 +4,7 @@
 
 2. [Installation](#Installation)
    
-   1. [via Nodejs](#via Nodejs)
+   1. [via Nodejs](#via%20Nodejs)
    
    2. [via Docker](#via Docker)
 
