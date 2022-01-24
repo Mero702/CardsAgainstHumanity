@@ -18,7 +18,7 @@ But this cards against humanity is build with NodeJS and socket.io.
 
 ## Installation
 
-### via Nodejs
+### via$20Nodejs
 
 Make sure NodeJS is installed
 
