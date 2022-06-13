@@ -2,60 +2,50 @@
     <div class="bg" @click.self="$emit('hideAnnouncement')">
         <div class="modal display" @click.prevent @wheel="onScroll">
             <p class="closeBtn" @click="$emit('hideAnnouncement')">&#xd7;</p>
-            <h3>Winner is {{winner.name}}</h3>
-            <Card :text="winner.black.text" type="black" :pick="winner.black.pick" class="black"/>
+            <h3>Winner is {{GameStore.$state.winner.name}}</h3>
+            <Card :text="GameStore.$state.winner.black.text" type="BLACK" :pick="GameStore.$state.winner.black.pick" class="black"/>
                 <div class="slider">
-                    <div class="btn left" v-bind:class="{disabled : index == 0}" @click="slide()"> <img :src="arrow" /></div>
+                    <div class="btn left" v-bind:class="{disabled : index == 0}" @click="slide()"> <ArrowIcon /></div>
                         <div class="whiteCards" :style="countItems">
-                            <Card v-for="(card, key) in winner.cards[index].cards" :key="key" :text="card.text" type="white" class="white" />
+                            <Card v-for="(card, key) in GameStore.$state.winner.cards[index].cards" :key="key" :text="card.text" type="WHITE" class="white" />
                         </div>
-                    <div class="btn" v-bind:class="{disabled : index == (winner.cards.length - 1)}" @click="slide(true)"><img :src="arrow" /></div>
+                    <div class="btn" v-bind:class="{disabled : index == (GameStore.$state.winner.cards.length - 1)}" @click="slide(true)"><ArrowIcon /></div>
                 </div>
         </div>
     </div>
 </template>
 
-<script>
-import Card from './Card.vue'
-export default {
-    name: 'WinnerAnnouncement',
-    props: ['winner'],
-    components: {
-        Card
-    },
-    data() {
-        return {
-            index: 0,
-            arrow: require('../../public/arrow.svg')
+<script lang="ts" setup>
+    import { useGameStore } from '@/stores/GameStore';
+    import { ref } from 'vue';
+    import Card from './Card.vue'
+    import ArrowIcon from './icons/Arrow.vue'
+
+    const GameStore = useGameStore()
+    const index = ref(0)
+
+    function slide(backwards: boolean = false) {
+        if(!backwards) {
+            if(index.value > 0)
+                index.value--
         }
-    },
-    methods: {
-        slide: function(backwards){
-            if(!backwards) {
-                if(this.index > 0)
-                    this.index--
-            }
-            else {
-                if(this.winner.cards.length - 1 > this.index)
-                    this.index++
-            }
-        },
-        onScroll: function(event) {
-            if(event.deltaY > 0) {
-                this.slide(1)
-            } else if(event.deltaY < 0) {
-                this.slide()
-            }
-        }
-    },
-    computed: {
-        countItems() {
-            return {
-                '--itemCount': this.winner.cards[this.index].cards.length || 1
-            }
+        else {
+            if(GameStore.$state.winner.cards.length - 1 > index.value)
+                index.value++
         }
     }
-}
+    function onScroll(event: any) {
+        if(event.deltaY > 0) {
+            slide(true)
+        } else if(event.deltaY < 0) {
+            slide()
+        }
+    }
+    function countItems() {
+        return {
+            '--itemCount': GameStore.$state.winner.cards[index.value].cards.length || 1
+        }
+    }
 </script>
 
 <style scoped>

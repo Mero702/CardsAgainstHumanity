@@ -20,20 +20,18 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'WaitingMessage',
-    props: ['type', 'players'],
-    data() {
-        return {
-            title: {
-                voting: 'Waiting for other players to answer',
-                finish: 'Waiting for player to choose winning card (combo)'
-            },
-            toggleText: true
-        }
-    },
-}
+<script lang="ts" setup>
+    import { ref } from 'vue';
+
+    const props = defineProps<{
+        type: 'ANSWERING'|'VOTING',
+        players: string[]
+    }>()
+    const toggleText = ref(false);
+    let title = {
+        ANSWERING: 'Waiting for other players to answer',
+        VOTING: 'Waiting for player to choose winning card (combo)'
+    }
 </script>
 
 <style scoped>

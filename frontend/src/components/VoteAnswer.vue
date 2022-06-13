@@ -1,26 +1,26 @@
 <template>
-    <div class="cardGrid" v-bind:class="{'double': $parent.blackCard.pick == 2, 'triple': $parent.blackCard.pick == 3}">
+    <div class="cardGrid" v-bind:class="{'double': GameStore.$state.blackCard.pick == 2, 'triple': GameStore.$state.blackCard.pick == 3}">
         <div class="TopCardContainer">
-            <Card :text="$parent.blackCard.text" :pick="$parent.blackCard.pick" type="black"/>
+            <Card :text="GameStore.$state.blackCard.text" :pick="GameStore.$state.blackCard.pick" type="BLACK"/>
         </div>
         <div>
-            <Cards :multiple="$parent.blackCard.pick != 1" v-bind:cards="$parent.voteAwnsers" @toggleCard="$emit('submitVotingCards', $event)"/>
+            <!-- 
+                TODO: Implement voting component
+                <Cards :multiple="GameStore.$state.blackCard.pick != 1" v-bind:cards="GameStore.$state.votingAnswers" @toggleCard="$emit('submitVotingCards', $event)"/> -->
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts" setup>
+import { useGameStore } from '@/stores/GameStore';
 import Card from '../components/Card.vue'
 import Cards from './Cards.vue'
 
-export default {
-    name: 'ChooseAwnser',
-    porps: ['cards', 'blackCard'],
-    components: {
-        Card,
-        Cards
-    },
-}
+const GameStore = useGameStore()
+const props = defineProps<{
+    blackCard: BlackCard
+    cards: Card[]
+}>()
 </script>
 
 <style scoped>

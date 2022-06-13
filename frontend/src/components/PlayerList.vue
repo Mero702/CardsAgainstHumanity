@@ -7,11 +7,10 @@
     </ul>
 </template>
 
-<script>
-export default {
-    name: 'PlayerList',
-    props: ['playerList']
-}
+<script lang="ts" setup>
+const props = defineProps<{
+    playerList: PlayerInfo[]
+}>()
 </script>
 
 <style scoped>

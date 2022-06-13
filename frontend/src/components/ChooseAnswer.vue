@@ -1,27 +1,25 @@
 <template>
     <div class="cardGrid">
         <div>
-            <Card :text="$parent.blackCard.text" :pick="$parent.blackCard.pick" type="black" class="TopCard"/>
+            <Card :text="GameStore.$state.blackCard.text" :pick="GameStore.$state.blackCard.pick" type="BLACK" class="TopCard"/>
         </div>
         <div>
-            <Cards v-bind:cards="$parent.handCards" @toggleCard="$emit('toggleCard', $event)"/>
+            <Cards :cards="GameStore.$state.handCards" @toggleCard="$emit('toggleCard', $event)"/>
         </div>
         <button class="submit" @click="$emit('submitAnswer')"> Submit </button>
     </div>
 </template>
 
-<script>
+<script lang="ts" setup>
+import { useGameStore } from '@/stores/GameStore';
+import { defineProps } from 'vue';
 import Card from './Card.vue'
 import Cards from './Cards.vue'
-
-export default {
-    name: 'ChooseAnswer',
-    porps: ['cards', 'blackCard'],
-    components: {
-        Cards,
-        Card
-    },
-}
+const GameStore = useGameStore()
+const props = defineProps<{
+    cards: Card[]
+    blackCard: BlackCard
+}>()
 </script>
 
 <style scoped>

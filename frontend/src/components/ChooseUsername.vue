@@ -1,7 +1,7 @@
 <template>
   <div id="setUsername">
       <h1>Choose a Username</h1>
-      <form action="" class="input" @submit.prevent="$emit('changeUsername', username, (e) => error = e)">
+      <form action="" class="input" @submit.prevent="$emit('changeUsername', username, (e:any) => error = e)">
         <input class="val" type="text" name="username" id="username" min="3" max="48" v-model="username" placeholder="username" required>
         <input type="submit" class="sub" id="usernameBtn">
       </form>
@@ -9,16 +9,12 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ChooseUsername',
-  data() {
-    return {
-      username: '',
-      error: ''
-    }
-  },
-}
+<script lang="ts" setup>
+//TODO: make a global error handling with stores
+import { ref } from 'vue';
+
+const username = ref('')
+const error = ref('')
 </script>
 
 <style>
