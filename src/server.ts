@@ -1,5 +1,5 @@
 import Express, { Application, Request, Response } from "express";
-import { createServer } from "http";
+import {createServer} from "http";
 import { Server, Socket } from "socket.io";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -12,14 +12,21 @@ import GameManager from "./game/GameManager";
 import { getRandomOrder } from "./game/utils";
 
 const app: Application = Express();
-const http = createServer(app)
-const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, GameSocketData>(http)
+const server = createServer(app)
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, GameSocketData>(server
+//   , {
+//   cors: {
+//     origin: "http://localhost:3001",
+//     methods: ["GET", "POST"]
+//   }
+// }
+)
 
 const port: number = (process.env.PORT || 3000) as number;
 const __dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 
 
-if (process.env.NODE_ENV == "development") {
+if (true || process.env.NODE_ENV == "development") {
   console.log("Running in development mode")
   const cors = await import('cors')
   app.use(cors.default())
@@ -37,10 +44,10 @@ const validateCustomDecks = ajv.compile(CustomDecksSchema);
 const decks = new DeckManager(path.join(__dirname, "/decks/cah-cards-full.json"))
 const gameManager = new GameManager()
 
-app.get('/decks', (req: Request, res: Response) => {
+app.get('/api/decks', (req: Request, res: Response) => {
   res.json(decks.getDeckInfos())
 })
-app.post('/createGame', (req: Request, res: Response) => {
+app.post('/api/createGame', (req: Request, res: Response) => {
   if (!('decks' in req.body || 'customDecks' in req.body))
     return res.status(400).json({ error: "No decks selected" })
 
@@ -56,7 +63,8 @@ app.post('/createGame', (req: Request, res: Response) => {
       return res.status(400).json({ error: "Invalid custom deck Format" })
   }
   // TODO: Test for minimal number of cards
-  gameManager.createGame(deckLoader.getDeck())
+  let id = gameManager.createGame(deckLoader.getDeck())
+  res.json({roomID: id})
 })
 
 io.on('connection', (socket) => {

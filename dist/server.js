@@ -8,11 +8,18 @@ import DeckManager from "./game/DeckManager";
 import DeckLoader from "./game/DeckLoader";
 import GameManager from "./game/GameManager";
 const app = Express();
-const http = createServer(app);
-const io = new Server(http);
+const server = createServer(app);
+const io = new Server(server
+//   , {
+//   cors: {
+//     origin: "http://localhost:3001",
+//     methods: ["GET", "POST"]
+//   }
+// }
+);
 const port = (process.env.PORT || 3000);
 const __dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-if (process.env.NODE_ENV == "development") {
+if (true || process.env.NODE_ENV == "development") {
     console.log("Running in development mode");
     const cors = await import('cors');
     app.use(cors.default());
@@ -24,10 +31,10 @@ const CustomDecksSchema = await import('./CustomDeckSchema.json');
 const validateCustomDecks = ajv.compile(CustomDecksSchema);
 const decks = new DeckManager(path.join(__dirname, "/decks/cah-cards-full.json"));
 const gameManager = new GameManager();
-app.get('/decks', (req, res) => {
+app.get('/api/decks', (req, res) => {
     res.json(decks.getDeckInfos());
 });
-app.post('/createGame', (req, res) => {
+app.post('/api/createGame', (req, res) => {
     if (!('decks' in req.body || 'customDecks' in req.body))
         return res.status(400).json({ error: "No decks selected" });
     const deckLoader = new DeckLoader();
@@ -42,7 +49,8 @@ app.post('/createGame', (req, res) => {
             return res.status(400).json({ error: "Invalid custom deck Format" });
     }
     // TODO: Test for minimal number of cards
-    gameManager.createGame(deckLoader.getDeck());
+    let id = gameManager.createGame(deckLoader.getDeck());
+    res.json({ roomID: id });
 });
 io.on('connection', (socket) => {
     socket.on('joinRoom', (room, username, callback) => {
