@@ -21,8 +21,8 @@ export default class GameManager {
     ifGameExist (roomID: string) {
         return this.games.find(x => x.uuid == roomID)
     }
-    findGame (roomID: string): Game|false {
-        if(!this.ifGameExist(roomID))
+    findGame (roomID: string|undefined): Game|false {
+        if(!roomID || !this.ifGameExist(roomID))
             return false
         return this.games.find(x => x.uuid == roomID) || false
     }

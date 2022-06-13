@@ -76,7 +76,7 @@ export default {
   methods: {
     fetchDecks: async function() {
       try {
-        const deckNames = await apiRequest('create', 'GET', undefined)
+        const deckNames = await apiRequest('decks', 'GET', undefined)
         this.decks = deckNames.map(x => {return {name: x.name, white: x.white, black: x.black, checked: false}})
       } catch(e) {
         this.error = e

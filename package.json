@@ -17,7 +17,7 @@
     }
   },
   "scripts": {
-    "start": "node ./dist/server.js",
+    "start": "node --experimental-specifier-resolution=node ./dist/server.js",
     "watch": "npm-watch",
     "dev": "tsc && node --experimental-specifier-resolution=node ./dist/server.js",
     "build": "tsc"

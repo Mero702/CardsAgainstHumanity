@@ -15,7 +15,7 @@ export default {
 <style>
 @font-face {
   font-family: Helvetica-Bold;
-  src: url(/Helvetica-Bold.ttf);
+  src: url(/public/Helvetica-Bold.ttf);
 }
 html, body, #app, .grid {
   height: 100vh;

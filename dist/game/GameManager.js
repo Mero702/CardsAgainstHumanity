@@ -20,7 +20,7 @@ export default class GameManager {
         return this.games.find(x => x.uuid == roomID);
     }
     findGame(roomID) {
-        if (!this.ifGameExist(roomID))
+        if (!roomID || !this.ifGameExist(roomID))
             return false;
         return this.games.find(x => x.uuid == roomID) || false;
     }

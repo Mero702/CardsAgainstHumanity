@@ -14,5 +14,5 @@ export function* getRandomOrder(count) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     while (array.length > 0)
-        yield array.shift();
+        yield array.shift() || 0;
 }
