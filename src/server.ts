@@ -14,12 +14,12 @@ import { getRandomOrder } from "./game/utils";
 const app: Application = Express();
 const server = createServer(app)
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, GameSocketData>(server
-//   , {
-//   cors: {
-//     origin: "http://localhost:3001",
-//     methods: ["GET", "POST"]
-//   }
-// }
+  , {
+  cors: {
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST"]
+  }
+}
 )
 
 const port: number = (process.env.PORT || 3000) as number;
@@ -157,6 +157,6 @@ io.on('connection', (socket) => {
 
     })
 })
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port http://localhost:${port}/`);
 })

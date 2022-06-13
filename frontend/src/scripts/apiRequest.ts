@@ -1,4 +1,4 @@
-export default async function(path: string, method: string, data: Object) {
+export default async function(path: string, method: string, data: Object|undefined) {
     const response = await fetch(`http://localhost:3000/api${path}`, { // http://localhost:3000
         method: method,
         headers: {

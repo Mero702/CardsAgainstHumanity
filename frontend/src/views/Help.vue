@@ -7,24 +7,21 @@
         <p> 
             <pre> <code class="language-json" v-html="code"></code></pre>
         </p>
-        <p>The Attribute pick defines how many answercards are needed</p>
+        <p>The Attribute pick defines how many answerers are needed</p>
     </div>
 </template>
-<script>
-import 'highlight.js/lib/common';
-import HilightJs from 'highlight.js'
-import example from '../scripts/example.json'
-export default {
-    name: 'Help',
-    data() {
-        return {
-            test: JSON.stringify(example, null, '\t'),
-            code: HilightJs.highlight(JSON.stringify(example, null, 4), {language: 'json'}).value
-        }
-    },
-}
+<script lang="ts" setup>
+    import { ref } from 'vue';
+    import 'highlight.js/lib/common';
+    import HilightJs from 'highlight.js'
+    import example from '../scripts/example.json'
+
+    const test = ref(JSON.stringify(example, null, '\t'))
+    const code = ref(HilightJs.highlight(JSON.stringify(example, null, 4), {language: 'json'}).value)
+
 </script>
 <style>
+@import url("//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/atom-one-dark.min.css");
 .packHelp {
     padding: 2ch;
 }

@@ -20,19 +20,17 @@
     </div>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            roomId: ''
-        }
-    },
-    methods: {
-        join: function() {
-            console.log('hey: ', this.roomId);
-        }
-    },
-}
+<script lang="ts" setup>
+    import { ref } from 'vue';
+    import router from '@/router/index';
+
+    const roomId = ref('')
+
+    function join() {
+        console.log('hey: ', roomId.value);
+        router.push(`/game/${roomId.value}`)
+    }
+
 </script>
 
 <style scoped>

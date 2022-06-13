@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { io, Socket } from "socket.io-client";
-import "../../../types/GameTypes";
-import type { ClientToServerEvents, ServerToClientEvents } from '../../../types/GameSocketIOTypes'
+import type { ClientToServerEvents, ServerToClientEvents } from '@/types/GameSocketIOTypes'
+//import socketEvents from "@/scripts/socketEvents";
 
 export type GameState = {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -11,30 +11,33 @@ export type GameState = {
   isMaster: boolean;
   isGameRunning: boolean,
   finished: boolean,
+  role: PlayerRole,
   phase: GamePhase;
   playerList: PlayerInfo[];
   unfinishedPlayers: string[];
   blackCard: BlackCard;
-  handCards: WhiteCard[];
-  votedAnswers: Answer[];
+  handCards: HandCard[];
+  votingAnswers: Answer[];
   winner: {
     show: boolean,
     name: string,
-    white: WhiteCard,
-    black: BlackCard
+    cards: Answer[],
+    black: BlackCard,
+    winner: string
   },
 }
 
 export const useGameStore = defineStore({
   id: "GameStore",
   state: () => ({
-    socket: io(),
+    socket: io('localhost:3000'),
     isConnected: false,
     room: "",
     username: "",
     isMaster: false,
     isGameRunning: false,
     finished: false,
+    role: "voting",
     phase: "TBS",
     playerList: [],
     unfinishedPlayers: [],
@@ -43,22 +46,25 @@ export const useGameStore = defineStore({
       pick: 0
     },
     handCards: [],
-    votedAnswers: [],
+    votingAnswers: [],
     winner: {
       show: false,
       name: '',
-      white: {
-        text: ''
-      },
+      cards: [],
       black: {
         text: '',
         pick: 0
-      }
+      },
+      winner: ''
     }
   } as GameState),
   getters: {
 
   },
   actions: {
-  },
+    async initSocket() {
+      const socketEvents = await import("@/scripts/socketEvents")
+      socketEvents.default()
+    },
+  }
 });

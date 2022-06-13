@@ -7,11 +7,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-}
-</script>
-
 <style>
 @font-face {
   font-family: Helvetica-Bold;

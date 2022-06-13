@@ -3,8 +3,8 @@
     <form action="/" @submit.prevent="createGame" method="post" v-if="!error">
       <div class="decks">
         <div v-for="(deck, key) in decks" v-bind:key="key">
-          <label :for="key" v-text="deck.name"></label>
-          <input type="checkbox" v-model="deck.checked" :id="key">
+          <label :for="key.toString()" v-text="deck.name"></label>
+          <input type="checkbox" v-model="deck.selected" :id="key.toString()">
         </div>
       </div>
       <div class="upload">
@@ -20,116 +20,102 @@
       </p>
     </div>
     <div class="cardCount" v-if="!error">
-      <p>Number of packs: {{ getPackCount }}</p>
-      <p>Number of white cards: {{getWhiteCards}}</p>
-      <p>Number of black cards: {{getBlackCards}}</p>
+      <p>Number of packs: {{ getCount().packs }}</p>
+      <p>Number of white cards: {{getCount().white}}</p>
+      <p>Number of black cards: {{getCount().black}}</p>
      </div>
   </div>
 </template>
 
-<script>
-import apiRequest from '../scripts/apiRequest.js'
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue'
 import Ajv from 'ajv'
-import packSchema from '../scripts/packSchema'
-export default {
-  data() {
-    return {
-      decks: [],
-      customDecks: [],
-      finishedReading: true,
-      error: ''
-    }
-  },computed: {
-    getPackCount() {
-      let includedDecks = this.decks.filter(x => x.checked)
-      includedDecks = [...includedDecks, ...this.customDecks.map( el => { return {
-        name: el.name
-      }})]
-
-      return includedDecks.length
-    },
-    getWhiteCards() {
-      let includedDecks = this.decks.filter(x => x.checked)
-      includedDecks = [...includedDecks, ...this.customDecks.map( el => { return {
+import packSchema from '../scripts/packSchema.json'
+import apiRequest from '@/scripts/apiRequest';
+import router from '@/router/index.js';
+interface SelectionDeck extends DeckInfo{
+  selected: boolean
+}
+const ajv = new Ajv()
+const validate = ajv.compile(packSchema)
+const decks = ref<SelectionDeck[]>([])
+const customDecks = ref<Deck[]>([])
+const finishedReading = ref(true)
+const error = ref('')
+    
+  
+    function getCount() {
+      let includedDecks = decks.value.filter(x => x.selected)
+      includedDecks = [...includedDecks, ...customDecks.value.map( el => { return {
         name: el.name,
-        black: el.black.length,
-        white: el.white.length
+        selected: true,
+        white: el.white.length,
+        black: el.black.length
       }})]
 
-       if(includedDecks.length > 0)
-        return includedDecks.map(x => x.white).reduce((acc, x) => acc + x)
-      return 0
-    },
-    getBlackCards() {
-      let includedDecks = this.decks.filter(x => x.checked)
-      includedDecks = [...includedDecks, ...this.customDecks.map( el => { return {
-        name: el.name,
-        black: el.black.length,
-        white: el.white.length
-      }})]
-
-      if(includedDecks.length > 0)
-        return includedDecks.map(x => x.black).reduce((acc, x) => acc + x)
-      return 0
-    }
-  },
-  methods: {
-    fetchDecks: async function() {
-      try {
-        const deckNames = await apiRequest('/decks', 'GET', undefined)
-        this.decks = deckNames.map(x => {return {name: x.name, white: x.white, black: x.black, checked: false}})
-      } catch(e) {
-        this.error = e
+      return {
+        packs: includedDecks.length,
+        white: includedDecks.reduce((acc, cur) => acc + cur.white, 0),
+        black: includedDecks.reduce((acc, cur) => acc + cur.black, 0)
       }
-    },
-    updateFiles: function(event) {
-      this.customDecks = []
-      this.finishedReading = false
+    }
+    async function fetchDecks() {
+      try {
+        const deckNames = await apiRequest('/decks', 'GET', undefined) as DeckInfo[]
+        decks.value = deckNames.map(x => ({
+          name: x.name,
+          white: x.white,
+          black: x.black,
+          selected: false
+        }))
+      } catch(e: any) {
+        error.value = e
+      }
+    }
+    function updateFiles(event: any) {
+      customDecks.value = []
+      finishedReading.value = false
 
       const reader = new FileReader();
       reader.addEventListener('load', (e) => {
         let pack
         try {
-          pack = JSON.parse(e.target.result)
-          if(!this.validate(pack))
+          pack = JSON.parse(e?.target?.result as string)
+          if(!validate(pack))
               throw 'In valid pack format'
         } catch (error) {
-          this.customDecks = []
+          customDecks.value = []
           event.target.value = ''
           console.error(error);
           alert("one of your files is not in the correct JSON format")
         }
-        this.customDecks.push(pack);
-        this.finishedReading = true
+        customDecks.value.push(pack);
+        finishedReading.value = true
       })
-      event.target.files.forEach(file => {
+      event.target.files.forEach((file: Blob) => {
         reader.readAsText(file)
       });
-    },
-    createGame: async function() {
+    }
+    async function createGame() {
       try {
         const response = await apiRequest('/createGame', 'POST', {
-          decks: this.decks.filter(x => x.checked).map(x => x.name),
-          customDecks: this.customDecks
+          decks: decks.value.filter(x => x.selected).map(x => x.name),
+          customDecks: customDecks.value
         })
         if(response.error)
           throw response.error
         if(response.roomID)
-          this.$router.push(`/game/${response.roomID}`);
+          router.push(`/game/${response.roomID}`);
         else
-          this.error = 'An error occurred, the room may or may not have been created'
+          error.value = 'An error occurred, the room may or may not have been created'
       } catch (e) {
         console.error(e);
-        this.error = 'An error occurred, failed to create the room'
+        error.value = 'An error occurred, failed to create the room'
       }
     }
-  },created() {
-    this.fetchDecks()
-
-    const ajv = new Ajv()
-    this.validate = ajv.compile(packSchema)
-  },
-}
+  onMounted(() => {
+    fetchDecks()
+  })
 </script>
 
 <style scoped>

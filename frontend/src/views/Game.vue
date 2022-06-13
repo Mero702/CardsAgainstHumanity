@@ -1,16 +1,29 @@
 <template>
   <div v-if="renderComponent">
-    <WinnerAnnouncement v-if="winner.show" :winner="winner" @hideAnnouncement="hideAnnouncement()"/>
-    <ChooseUsername v-if="!isConnected" @changeUsername="joinRoom" roomID="oof"/>
+    <WinnerAnnouncement v-if="gameStore.$state.winner.show" :winner="gameStore.$state.winner" @hideAnnouncement="hideAnnouncement()"/>
+    <ChooseUsername v-if="!gameStore.$state.isConnected" @changeUsername="joinRoom" roomID="oof"/>
     <div v-else class="gameOverlay">
-      <div class="game" v-if="gameIsRunning">
-        <ChooseAnswer v-if="phase == 'answering' && (role == 'answering' && !finished)" v-bind:cards="handCards" :blackCard="blackCard" @toggleCard="toggleCard" @submitAnswer="submitAnswer"/>
-        <WaitingMessage v-if="phase == 'answering' && (role == 'voting' || finished)" type="voting" :players="unfinishedPlayers" />
-        <VoteAnswer v-if="phase == 'voting' && role == 'voting'" @submitVotingCards="submitVotingCards"/>
-        <WaitingMessage v-if="phase == 'voting' && role == 'answering'" type="finish" :players="unfinishedPlayers" />
+      <div class="game" v-if="gameStore.$state.isGameRunning">
+        <ChooseAnswer v-if="gameStore.$state.phase == 'ANSWERING' && (gameStore.$state.role == 'judging' && !gameStore.$state.finished)" 
+          v-bind:cards="gameStore.$state.handCards"
+          :blackCard="gameStore.$state.blackCard" 
+          @toggleCard="toggleCard" 
+          @submitAnswer="submitAnswer"
+        />
+        <WaitingMessage v-if="gameStore.$state.phase == 'ANSWERING' && (gameStore.$state.role == 'voting' || gameStore.$state.finished)" 
+          type="voting" 
+          :players="gameStore.$state.unfinishedPlayers"
+        />
+        <VoteAnswer v-if="gameStore.$state.phase == 'VOTING' && gameStore.$state.role == 'voting'" 
+          @submitVotingCards="submitVotingCards"
+        />
+        <WaitingMessage v-if="gameStore.$state.phase == 'VOTING' && gameStore.$state.role == 'judging'"
+          type="finish"
+          :players="gameStore.$state.unfinishedPlayers"
+        />
       </div>
       <div v-else class="centerContent">
-        <div v-if="isMaster" class="startScreen">
+        <div v-if="gameStore.$state.isMaster" class="startScreen">
           <div class="shareId">
             <details> 
               <summary> Click to show the room id</summary>
@@ -24,7 +37,7 @@
           Waiting for game Master to start
         </p>
       </div>
-      <PlayerList :playerList="playerList" class="PlayerList"/>
+      <PlayerList :playerList="gameStore.$state.playerList" class="PlayerList"/>
     </div>
     
   </div>
@@ -32,7 +45,8 @@
 
 <script lang="ts" setup>
 // @ is an alias to /src
-import {ref , onMounted} from 'vue'
+import {ref , onMounted, nextTick, watch} from 'vue'
+import { useRoute } from 'vue-router'
 import PlayerList from '../components/PlayerList.vue'
 import ChooseUsername from '../components/ChooseUsername.vue'
 import ChooseAnswer from '../components/ChooseAnswer.vue'
@@ -42,95 +56,82 @@ import WaitingMessage from '../components/WaitingMessage.vue'
 import ClipBoardIcon from '../components/icons/ClipBoard.vue'
 
 import {useGameStore} from '@/stores/GameStore'
-const gameStore = useGameStore()
 
+const gameStore = useGameStore()
+gameStore.initSocket()
+
+const route = useRoute()
+
+const renderComponent = ref(true)
 
   onMounted(() => {
-    socket.on('update-users', (player) => {
-      playerList = player
-      playerList.sort((a,b) => a.order - b.order)
-    })
-    socket.on('update-cards', (cards, blackCard, role) => {
-      handCards = cards.map( x => {return {selected: false, order: 0, ...x}})
-      gameIsRunning = true
-      blackCard = blackCard
-      role = role
-      finished = false
-      })
-      socket.on('update-phase', (phase) => {
-        phase = phase
-      })
-      socket.on('update-waiting', (unfinishedPlayers) => {
-        unfinishedPlayers = unfinishedPlayers
-      })
-      socket.on('vote', (answer) => {
-        voteAnswer = answer
-      })
-      socket.on("WinnerAnnouncement", (username, blackCard, cards, winner) => {
-        cards[0] = cards.splice(winner, 1, cards[0])[0];
-        winner = {
-          show: true,
-          name: username,
-          cards: cards,
-          black: blackCard
-        }
-      })
-      window.addEventListener('resize', () => {
-        // Remove my-component from the DOM
-        renderComponent = false;
+    window.addEventListener('resize', () => {
+      // Remove my-component from the DOM
+      renderComponent.value = false;
 
-        $nextTick(() => {
-          // Add the component back in
-          renderComponent = true;
-        });
-      })
+      nextTick(() => {
+        // Add the component back in
+        renderComponent.value = true;
+      });
+    })
   })
-  methods: {
-    joinRoom: function(username, reject) {
-      .socket.game('joinRoom', .$route.params.roomID, username, (msg) => {
-        if('ok' in msg && msg.ok) {
-          .isConnected = true
-          .isMaster = msg.master
-        } else
-          reject(msg.error)
-      })
-    },
-    startGame: function() {
-      .socket.game('startGame', (msg) => {if(msg.error) alert(msg.error)})
-    },
-    toggleCard: function(key) {
-      if(.handCards[key].selected)
-        .handCards[key].selected = false
-      else if(.blackCard.pick > .handCards.filter(x => x.selected).length){
-        .handCards[key].selected = true
-        .handCards[key].order = .handCards.filter(x => x.selected).length
-      }
-    },
-    submitVotingCards: function(key) {
-      .socket.game('submitVoting', key)
-    },
-    submitAnswer: function() {
-      if(.blackCard.pick == .handCards.filter(x => x.selected).length) {
-        // games all indexes of selected cards
-        .socket.game('submitAnswer', .handCards.filter(c => c.selected)
-          .sort((a,b) => a.order-b.order)
-          .map(c => {return {text:c.text, order: c.order}}),(accepted) => {.finished = accepted})
-      } else 
-        alert('Not enough or too many cards selected')
-    },
-    hideAnnouncement: function() {
-      .winner.show = false
-    },
-    copyLink: function() {
-      if (!navigator.clipboard) {
-        alert("Your browser dosen't suport  feature");
-      } else {
-        navigator.clipboard.writeText(window.location.href).then( () => alert('Coppied to clipboard'))
+  function joinRoom(username: string, reject: CallableFunction) {
+    let roomID = route.params.roomID.toString()
         
+    gameStore.$state.socket.emit('joinRoom', roomID, username, (result) => {
+      if(result.ok) {
+        gameStore.$state.username = username
+        gameStore.$state.room = roomID
+        gameStore.$state.isConnected = true
+        gameStore.$state.isMaster = result.isMaster
+      }else {
+        console.log(result);
+        
+        reject(result.error)
       }
-    } 
-  },
-}
+    })
+  }
+  function startGame() {
+    gameStore.$state.socket.emit('startGame', (result) => {if(!result.ok) alert(result.error)})
+  }
+  function toggleCard(key: number) {
+    if(gameStore.$state.handCards[key].selected)
+      gameStore.$state.handCards[key].selected = false
+    else if(gameStore.$state.blackCard.pick > gameStore.$state.handCards.filter(x => x.selected).length){
+      gameStore.$state.handCards[key].selected = true
+      gameStore.$state.handCards[key].order = gameStore.$state.handCards.filter(x => x.selected).length
+    }
+  }
+  function submitVotingCards(key: string) {
+    gameStore.$state.socket.emit('submitVoting', key, (result) => {
+      if(!result.ok) alert(result.error)
+    })
+  }
+  function submitAnswer() {
+    if(gameStore.$state.blackCard.pick == gameStore.$state.handCards.filter(x => x.selected).length) {
+      // games all indexes of selected cards
+      gameStore.$state.socket.emit('submitAnswer', gameStore.$state.handCards.filter(c => c.selected)
+          .sort((a,b) => a.order-b.order)
+          .map(c => {return {text:c.text, order: c.order}}),
+        (result) => {
+          if(result.ok) gameStore.$state.finished = true
+          else alert(result.error)
+        })
+    } else 
+      alert('Not enough or too many cards selected')
+  }
+  function hideAnnouncement() {
+    gameStore.$state.winner.show = false
+  }
+  function copyLink() {
+    if (!navigator.clipboard) {
+      alert("Your browser doesn't support  feature");
+    } else {
+      navigator.clipboard.writeText(window.location.href).then( () => alert('Copied to clipboard'))
+      
+    }
+  } 
+
 </script>
 
 <style scoped>

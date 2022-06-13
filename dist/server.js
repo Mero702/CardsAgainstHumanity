@@ -9,14 +9,12 @@ import DeckLoader from "./game/DeckLoader";
 import GameManager from "./game/GameManager";
 const app = Express();
 const server = createServer(app);
-const io = new Server(server
-//   , {
-//   cors: {
-//     origin: "http://localhost:3001",
-//     methods: ["GET", "POST"]
-//   }
-// }
-);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3001",
+        methods: ["GET", "POST"]
+    }
+});
 const port = (process.env.PORT || 3000);
 const __dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 if (true || process.env.NODE_ENV == "development") {
@@ -121,6 +119,6 @@ io.on('connection', (socket) => {
         io.to(`room-${socket.data.room}`).emit('updateWaiting', game.unfinishedPlayers);
     });
 });
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on port http://localhost:${port}/`);
 });
