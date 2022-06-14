@@ -17,7 +17,7 @@ export type GameState = {
   unfinishedPlayers: string[];
   blackCard: BlackCard;
   handCards: HandCard[];
-  votingAnswers: Answer[];
+  votingAnswers: Selectable<Answer>[];
   winner: {
     show: boolean,
     name: string,

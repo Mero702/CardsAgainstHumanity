@@ -4,8 +4,13 @@
       <router-link to="/">Home</router-link>
     </div>
     <router-view/>
+    
   </div>
 </template>
+
+<script lang="ts" setup>
+import Card from "@/components/Card.vue";
+</script>
 
 <style>
 @font-face {
@@ -40,6 +45,8 @@ a.router-link-exact-active {
   color: tomato;
 }
 .grid { 
+  height: 100vh;
+  width: 100vw;
   display: grid;
   grid-template-rows: 1fr 14fr;
 }

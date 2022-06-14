@@ -11,7 +11,7 @@
           @submitAnswer="submitAnswer"
         />
         <WaitingMessage v-if="gameStore.$state.phase == 'ANSWERING' && (gameStore.$state.role == 'voting' || gameStore.$state.finished)" 
-          type="voting" 
+          type="VOTING" 
           :players="gameStore.$state.unfinishedPlayers"
         />
         <VoteAnswer v-if="gameStore.$state.phase == 'VOTING' && gameStore.$state.role == 'voting'" 
@@ -56,6 +56,7 @@ import WaitingMessage from '../components/WaitingMessage.vue'
 import ClipBoardIcon from '../components/icons/ClipBoard.vue'
 
 import {useGameStore} from '@/stores/GameStore'
+import PreviewVue from './Preview.vue'
 
 const gameStore = useGameStore()
 gameStore.initSocket()

@@ -23,6 +23,11 @@ const router = createRouter({
             path: '/help',
             name: 'Help',
             component: () => import('../views/Help.vue')
+        },
+        {
+            path: '/preview',
+            name: 'Preview',
+            component: () => import('../views/Preview.vue')
         }
     ],
 });

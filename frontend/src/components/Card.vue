@@ -1,4 +1,4 @@
-<template>
+<template class="awoo">
     <div v-bind:class="{white: type == 'WHITE', black: type == 'BLACK', isSelected: isSelected}" class="card" v-if="renderComponent" >
         <p v-text="text" class="text"></p>
         <p v-text="'pick: '+pick" class="pick" v-if="pick"></p>
@@ -15,32 +15,19 @@ const props = defineProps<{
     isSelected?: boolean
 }>()
 const renderComponent = ref(true)
-onMounted(() => {
-    window.addEventListener('resize', () => {
-        // Remove my-component from the DOM
-        renderComponent.value = false;
-
-        nextTick(() => {
-          // Add the component back in
-          renderComponent.value = true;
-        });
-      })
-})
 </script>
 
 <style scoped>
 .card {
-    display: flex;
+    width: 100%;
+    max-height: 100%;
+    margin: auto auto;
+    aspect-ratio: 63 / 88;
+    position: relative;
     box-sizing: border-box;
+
+    display: flex;
     flex-direction: column;
-    height: 100%;
-    width: min-content;
-    aspect-ratio: calc(63/88);
-    /* 
-    --scale: 1.3;
-    width: calc(var(--scale)*6.3em);
-    height: calc(var(--scale)*8.8em);
-    */
     padding: 1em;
     font-size: 1.2em;
     border-radius: .8em;

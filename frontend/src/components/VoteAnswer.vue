@@ -4,6 +4,7 @@
             <Card :text="GameStore.$state.blackCard.text" :pick="GameStore.$state.blackCard.pick" type="BLACK"/>
         </div>
         <div>
+            <Cards :cards="GameStore.$state.votingAnswers" @toggleCard="$emit('toggleCard', $event)"/>
             <!-- 
                 TODO: Implement voting component
                 <Cards :multiple="GameStore.$state.blackCard.pick != 1" v-bind:cards="GameStore.$state.votingAnswers" @toggleCard="$emit('submitVotingCards', $event)"/> -->

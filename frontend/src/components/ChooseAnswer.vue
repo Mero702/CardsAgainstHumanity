@@ -12,14 +12,9 @@
 
 <script lang="ts" setup>
 import { useGameStore } from '@/stores/GameStore';
-import { defineProps } from 'vue';
 import Card from './Card.vue'
 import Cards from './Cards.vue'
 const GameStore = useGameStore()
-const props = defineProps<{
-    cards: Card[]
-    blackCard: BlackCard
-}>()
 </script>
 
 <style scoped>

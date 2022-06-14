@@ -39,3 +39,4 @@ declare interface PlayerInfo {
 }
 declare type PlayerRole = 'voting' | 'judging';
 declare type GamePhase = 'TBS' | 'ANSWERING' | 'VOTING';
+declare type Test = 'test';
