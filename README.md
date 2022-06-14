@@ -38,13 +38,13 @@ if it's not installed, than install it
 
 ### via Docker
 
-Install docker if not installed [Guide to install docker](https://docs.docker.com/get-docker/){:target="_blank"}
+Install docker if not installed [Guide to install docker](https://docs.docker.com/get-docker/){target="_blank"}
 
 ```shell
 # docker run -p 127.0.0.1:80:8080/tcp mero702/cah:stable
 ```
-For reference [https://hub.docker.com/r/mero702/cah](https://hub.docker.com/r/mero702/cah){:target="_blank"}
+For reference [https://hub.docker.com/r/mero702/cah](https://hub.docker.com/r/mero702/cah){target="_blank"}
 
 ## Resources
 
-The card pack is from [https://crhallberg.com/cah/](https://crhallberg.com/cah/){:target="_blank"}
+The card pack is from [https://crhallberg.com/cah/](https://crhallberg.com/cah/){target="_blank"}
