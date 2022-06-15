@@ -17,12 +17,19 @@ import Card from "@/components/Card.vue";
   font-family: Helvetica-Bold;
   src: url(/Helvetica-Bold.ttf);
 }
+.heightFix {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
 html, body, #app, .grid {
+  --background-color: #2C313A;
+  --accent-color: #c0c0c0;
   height: 100vh;
   width: 100vw;
   font-family: Helvetica-Bold;
   /* font-family: 'Open Sans', Arial, sans-serif; */
-  background: #2C313A;
+  background: var(--background-color);
   color: #c0c0c0;
   overflow: overlay;
 }

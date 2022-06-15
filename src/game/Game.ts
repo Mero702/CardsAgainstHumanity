@@ -66,8 +66,9 @@ export default class Game {
         let player = this.findPlayer(id)
         if (!player)
             return 'Player is not in a game room'
-
-        if (this.answers.some(x => x.id == id))
+        if (this.phase != 'ANSWERING')
+            return 'Game is not in the answering phase'
+        if (this.playerAnswerMap.some(x => x[1] == id))
             return 'User has already submitted an answer';
         
         let randomID: string
@@ -102,6 +103,8 @@ export default class Game {
         let player = this.findPlayer(id)
         if (!player)
             return 'Player is not in this game';
+        if (this.phase != 'VOTING')
+            return 'Game is not in the voting phase';
         if (player.getRole(this.turn, this.players.length) != 'voting')
             return;
         let roundWinnerID = this.playerAnswerMap.find(x => x[0] == answerID)?.[1]
@@ -120,6 +123,7 @@ export default class Game {
             this.usedCards.white.push(...answer.cards.map(card => ({text:card.text})))
         })
         this.drawBlackCard()
+        this.playerAnswerMap = []
         this.answers = []
         this.turn += 1
         this.phase = 'ANSWERING'

@@ -8,10 +8,9 @@
                 'cardStack': ('id' in card && card.cards.length > 1)
             }"
             @click="$emit('toggleCard', ('id' in card) ? card.id : key)"
-            v-bind:class="{isSelected : ('cards' in card && card.cards.length > 1) && card.selected}"
         >
-        <Card v-if="'text' in card" :text="card.text" type="WHITE" :isSelected="card.selected"/>
-        <Card v-else v-for="(subCard, key) in card.cards" :key="key" :text="subCard.text" type="WHITE"/>
+        <Card v-if="'text' in card" :card="card" type="WHITE" :isSelected="card.selected"/>
+        <Card v-else v-for="(subCard, key) in card.cards" :key="key" :card="subCard" type="WHITE" :isSelected="card.selected"/>
 
         </div>
     </div>
@@ -45,5 +44,9 @@
     grid-auto-rows: 1fr;
     grid-auto-flow: row;
     grid-row-gap:.5ch;
+}
+.card:hover, .cardStack:hover .card {
+    background: linear-gradient(-135deg, tomato, 25%, whitesmoke);
+    cursor: pointer;
 }
 </style>

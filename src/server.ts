@@ -64,6 +64,8 @@ app.post('/api/createGame', (req: Request, res: Response) => {
   }
   // TODO: Test for minimal number of cards
   let id = gameManager.createGame(deckLoader.getDeck())
+  if(!id)
+    return res.status(400).json({ error: "Could not create game" })
   res.json({roomID: id})
 })
 
@@ -114,7 +116,9 @@ io.on('connection', (socket) => {
     if (!game)
       return callback({ ok: false, error: `No game with the id '${socket.data.room}' found` })
 
-    game.submitAnswer(socket.id, cards, (votingPlayer, cards) => io.to(votingPlayer).emit('voting', cards))
+    let error = game.submitAnswer(socket.id, cards, (votingPlayer, cards) => io.to(votingPlayer).emit('voting', cards))
+    if (error)
+      return callback({ ok: false, error })
 
     io.to(`room-${socket.data.room}`).emit('updateWaiting', game.getUnfinishedPlayers() || ["error"])
     io.to(`room-${socket.data.room}`).emit('updatePhase', game.phase)
@@ -128,9 +132,11 @@ io.on('connection', (socket) => {
     if (!game)
       return callback({ ok: false, error: `No game with the id '${socket.data.room}' found` })
 
-    game.submitVoting(socket.id, answerID, (winnerName, blackCard, answers, answerID) => 
+    let error = game.submitVoting(socket.id, answerID, (winnerName, blackCard, answers, answerID) => 
       io.to(`room-${socket.data.room}`).emit('WinnerAnnouncement', winnerName, blackCard, answers, answerID)
     )
+    if(error)
+      return callback({ ok: false, error })
 
     game.players.forEach(p => {
       if(game && game.currentBlackCard)

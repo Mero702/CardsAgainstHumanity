@@ -1,28 +1,27 @@
-<template class="awoo">
-    <div v-bind:class="{white: type == 'WHITE', black: type == 'BLACK', isSelected: isSelected}" class="card" v-if="renderComponent" >
-        <p v-text="text" class="text"></p>
-        <p v-text="'pick: '+pick" class="pick" v-if="pick"></p>
+<template>
+    <div v-bind:class="{white: type == 'WHITE', black: type == 'BLACK', isSelected: isSelected}" class="card">
+        <p v-text="card.text" class="text"></p>
+        <p v-if="'pick' in card" v-text="'pick: '+card.pick" class="pick"></p>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, defineProps, nextTick } from 'vue';
+import { ref, defineProps } from 'vue';
 
 const props = defineProps<{
     type: 'WHITE' | 'BLACK'
-    text: string
-    pick?: number
+    card: WhiteCard | BlackCard
     isSelected?: boolean
 }>()
-const renderComponent = ref(true)
 </script>
 
 <style scoped>
 .card {
     width: 100%;
     max-height: 100%;
-    margin: auto auto;
     aspect-ratio: 63 / 88;
+    
+    margin: auto auto;
     position: relative;
     box-sizing: border-box;
 

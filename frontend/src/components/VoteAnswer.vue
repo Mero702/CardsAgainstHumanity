@@ -1,48 +1,50 @@
 <template>
-    <div class="cardGrid" v-bind:class="{'double': GameStore.$state.blackCard.pick == 2, 'triple': GameStore.$state.blackCard.pick == 3}">
-        <div class="TopCardContainer">
-            <Card :text="GameStore.$state.blackCard.text" :pick="GameStore.$state.blackCard.pick" type="BLACK"/>
+    <div class="cardGrid" :style="{'--multiplier' : cardCount()}">
+        <Card :card="GameStore.$state.blackCard" type="BLACK" ref="displayedBlackCard" class="displayedBlackCard"/>
+        <div class="heightFix">
+            <Cards :cards="GameStore.$state.votingAnswers" @toggleCard="GameStore.selectAnswer"/>
         </div>
-        <div>
-            <Cards :cards="GameStore.$state.votingAnswers" @toggleCard="$emit('toggleCard', $event)"/>
-            <!-- 
-                TODO: Implement voting component
-                <Cards :multiple="GameStore.$state.blackCard.pick != 1" v-bind:cards="GameStore.$state.votingAnswers" @toggleCard="$emit('submitVotingCards', $event)"/> -->
-        </div>
+        <button class="submit" @click="GameStore.submitVoting" :style="{'--width': BlackCardWith+'px'}"> Submit </button>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { useGameStore } from '@/stores/GameStore';
-import Card from '../components/Card.vue'
-import Cards from './Cards.vue'
+import Card from '@/components/Card.vue'
+import Cards from '@/components/Cards.vue'
+import { ref, onMounted } from 'vue';
 
 const GameStore = useGameStore()
-const props = defineProps<{
-    blackCard: BlackCard
-    cards: Card[]
-}>()
+
+const BlackCardWith = ref(0)
+
+function cardCount() {
+    return Math.max(...GameStore.$state.votingAnswers.map(x => x.cards.length)) + 'fr';
+}
+
+onMounted(() => {
+    BlackCardWith.value = document.getElementsByClassName('displayedBlackCard')[0]?.clientWidth
+    new ResizeObserver(
+        () => BlackCardWith.value = document.getElementsByClassName('displayedBlackCard')[0]?.clientWidth
+    ).observe(document.getElementsByClassName('displayedBlackCard')[0])
+})
+
 </script>
 
 <style scoped>
-.cardGrid {
+.cardGrid{
+    --multiplier: 1fr;
+    overflow: auto;
     display: grid;
-    grid-template-rows: 1fr 1fr;
-    height: 100%;
-    row-gap: .5ch;
+    grid-template-rows: 1fr var(--multiplier) 2.5em; 
+    grid-row-gap: 1ch;
+
 }
-.cardGrid > * {
-    height: 100%;
-    width: 100%;
+.submit {
+    --width: fit-content;
     margin: 0 auto;
-}
-.cardGrid.double {
-    grid-template-rows: 1fr 2fr;
-}
-.cardGrid.tripple {
-    grid-template-rows: 1fr 3fr;
-}
-.TopCardContainer > * {
-    margin: 0 auto;
+    width: var(--width);
+    padding: 1ch 2ch;
+    text-align: center;
 }
 </style>

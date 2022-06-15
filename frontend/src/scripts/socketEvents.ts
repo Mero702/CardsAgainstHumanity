@@ -19,7 +19,7 @@ export default function() {
         GameStore.$state.unfinishedPlayers = unfinishedPlayers
     })
     GameStore.$state.socket.on('voting', (answer) => {
-        GameStore.$state.votingAnswers = answer
+        GameStore.$state.votingAnswers = answer.map( x => ({selected: false, ...x}))
     })
     GameStore.$state.socket.on("WinnerAnnouncement", (username: string, blackCard, cards: Answer[], winner) => {
         GameStore.$state.winner = {

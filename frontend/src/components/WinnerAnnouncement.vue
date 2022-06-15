@@ -1,18 +1,20 @@
 <template>
-    <div class="bg" @click.self="$emit('hideAnnouncement')">
-        <div class="modal display" @click.prevent @wheel="onScroll">
-            <p class="closeBtn" @click="$emit('hideAnnouncement')">&#xd7;</p>
+    <Modal>
+        <template v-slot:title>
             <h3>Winner is {{GameStore.$state.winner.name}}</h3>
-            <Card :text="GameStore.$state.winner.black.text" type="BLACK" :pick="GameStore.$state.winner.black.pick" class="black"/>
-                <div class="slider">
-                    <div class="btn left" v-bind:class="{disabled : index == 0}" @click="slide()"> <ArrowIcon /></div>
-                        <div class="whiteCards" :style="countItems">
-                            <Card v-for="(card, key) in GameStore.$state.winner.cards[index].cards" :key="key" :text="card.text" type="WHITE" class="white" />
-                        </div>
-                    <div class="btn" v-bind:class="{disabled : index == (GameStore.$state.winner.cards.length - 1)}" @click="slide(true)"><ArrowIcon /></div>
-                </div>
+        </template>
+        <template v-slot:closebtn>
+            <p class="colosbtn">&#xd7;</p>
+        </template>
+        <div class="cardPresentation heightFix">
+            <Card :card="GameStore.$state.winner.black" type="BLACK"/>
+            <div class="slider heightFix" @wheel="onScroll">
+                <ArrowIcon :rotation="180" class="left sliderNext" :disabled="isDisabled('BACKWARD')" @click="slide('BACKWARD')"/>
+                <Card v-for="(card, key) in GameStore.$state.winner.cards[index].cards" :card="card" type="WHITE" :key="key"/>
+                <ArrowIcon class="sliderNext" @click="slide('FORWARD')" :disabled="isDisabled('FORWARD')"/>
+            </div>
         </div>
-    </div>
+    </Modal>
 </template>
 
 <script lang="ts" setup>
@@ -20,93 +22,51 @@
     import { ref } from 'vue';
     import Card from './Card.vue'
     import ArrowIcon from './icons/Arrow.vue'
+    import Modal from './Modal.vue'
 
     const GameStore = useGameStore()
     const index = ref(0)
 
-    function slide(backwards: boolean = false) {
-        if(!backwards) {
-            if(index.value > 0)
-                index.value--
+    function isDisabled(direction: 'FORWARD'|'BACKWARD') {
+        if(direction === 'FORWARD') {
+            return index.value === GameStore.$state.winner.cards.length - 1
+        } else {
+            return index.value === 0
         }
-        else {
+    }
+    function slide(direction: 'FORWARD'|'BACKWARD') {
+        if(direction === 'FORWARD') {
             if(GameStore.$state.winner.cards.length - 1 > index.value)
                 index.value++
+        }
+        else {
+            if(index.value > 0)
+                index.value--
         }
     }
     function onScroll(event: any) {
         if(event.deltaY > 0) {
-            slide(true)
+            slide('BACKWARD')
         } else if(event.deltaY < 0) {
-            slide()
+            slide('FORWARD')
         }
     }
-    function countItems() {
-        return {
-            '--itemCount': GameStore.$state.winner.cards[index.value].cards.length || 1
-        }
-    }
+
 </script>
 
 <style scoped>
-.bg {
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, .6);
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-.modal {
-    height: 70vh;
-    width: 80vw;
-    background: #2C313A;
-    z-index: 1;
-    position: absolute;
-    margin: auto;
-    top: 0; left: 0; bottom: 0; right: 0;
-    border-radius: 1em;
-}
-.bg:hover {
-    cursor: pointer;
-}
-.bg > .modal:hover {
-    cursor:auto;
-}
-.closeBtn {
-    position: absolute;
-    height: 2ch;
-    width: 2ch;
-    text-align: center;
-    top: .2em;
-    right: .3em;
-    font-size: 1.8em;
-    cursor: pointer;
-}
-.display {
+.cardPresentation {
     display: grid;
-    row-gap: 1ch;
-    grid-template-rows: 2em 1fr 1fr;
-    justify-items: center;
-    padding-bottom: 3ch;
-}
-.whiteCards {
-    --itemCount: 1;
-    display: grid;
-    width: 100%;
-    height: 100%;
-    grid-template-columns: repeat(var(--itemCount), 1fr);
-    justify-items: center;
-}
-h3 {
-    padding: 1ch 0;
+    grid-template-rows: 1fr 1fr;
+    grid-row-gap: 1ch;
 }
 .slider {
     display: grid;
-    grid-template-columns: 3em 1fr 3em;
-    width: 90%;
-    justify-items: center;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
+    grid-column-gap: 1ch;
+}
+.sliderNext {
 }
 .slider .btn{
     transform: scale(1.5);
