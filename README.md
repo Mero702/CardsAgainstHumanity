@@ -2,19 +2,29 @@
 
 1. [Overview](#Overview)
 
-2. [Installation](#Installation)
+2. [TODOs](#TODOs)
+
+3. [Installation](#Installation)
    
    1. [via Nodejs](#via-Nodejs)
    
    2. [via Docker](#via-Docker)
 
-3. [Resources](#Resources)
+4. [Resources](#Resources)
 
 ## Overview
 
 It's a Cards Against Humanity, so what would you expect?
 
 But this cards against humanity is build with NodeJS and socket.io.
+
+## TODOs
+
+* Mobile Version
+* PWA (Instalable)
+* SEO Optimation
+* Google Listing
+* Google Analytics
 
 ## Installation
 
