@@ -21,7 +21,7 @@ But this cards against humanity is build with NodeJS and socket.io.
 ## TODOs
 
 * Mobile Version
-* PWA (Instalable)
+* PWA 
 * SEO Optimation
 * Google Listing
 * Google Analytics
