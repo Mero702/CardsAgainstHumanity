@@ -3,8 +3,8 @@
         <div class="content" @click.stop="()=>{}">
             <div class="title">
                 <slot name="title">Title</slot>
-                <span class="closebtn" @click="close">
-                    <slot name=closebtn>X</slot>
+                <span class="closeBtn" @click="close">
+                    <slot name=closeBtn>X</slot>
                 </span>
             </div>
             <slot>Error</slot>
@@ -57,7 +57,7 @@ function close() {
     cursor: default;
 }
 
-.closebtn {
+.closeBtn {
     position: absolute;
     top: 3ch;
     right: 3ch;

@@ -3,8 +3,8 @@
         <template v-slot:title>
             <h3>Winner is {{GameStore.$state.winner.name}}</h3>
         </template>
-        <template v-slot:closebtn>
-            <p class="colosbtn">&#xd7;</p>
+        <template v-slot:closeBtn>
+            <p class="closeBtn">&#xd7;</p>
         </template>
         <!-- TODO: change this to one grid with slider elements -->
         <div class="cardPresentation heightFix">
