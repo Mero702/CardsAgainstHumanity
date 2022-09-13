@@ -17,7 +17,6 @@
 </template>
 
 <script lang="ts" setup>
-    import { defineProps } from 'vue';
     import Card from './Card.vue'
 
     const props = defineProps<{

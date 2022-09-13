@@ -6,7 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps } from 'vue';
+import { ref } from 'vue';
+import type { WhiteCard, BlackCard } from '../../../types/GameTypes';
 
 const props = defineProps<{
     type: 'WHITE' | 'BLACK'
@@ -17,10 +18,11 @@ const props = defineProps<{
 
 <style scoped>
 .card {
-    width: 100%;
-    max-height: 100%;
+    /* resizing with aspect ratio and 66% pure magic */
+    max-width: 100%;
+    height: 100%;
     aspect-ratio: 63 / 88;
-    
+
     margin: auto auto;
     position: relative;
     box-sizing: border-box;
@@ -33,21 +35,30 @@ const props = defineProps<{
     overflow: auto;
     justify-content: space-between;
     text-align: left;
+
+    background-color: var(--card-background);
 }
+
 .pick {
     align-self: flex-end;
 }
-.card > p {
-    word-break:keep-all;
+
+.card>p {
+    word-break: keep-all;
+    color: var(--card-color);
 }
+
 .white {
-    background: whitesmoke;
-    color: black;
+    --card-color: black;
+    --card-background: whitesmoke;
 }
+
 .black {
-    background: black;
-    color: whitesmoke;
+    --card-color: whitesmoke;
+    --card-background: black;
 }
+
+
 .card.isSelected {
     box-shadow: 1px -2px 0px 3px tomato inset;
 }

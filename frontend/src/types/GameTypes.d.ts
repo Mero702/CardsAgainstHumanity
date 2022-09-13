@@ -36,7 +36,8 @@ declare interface PlayerInfo {
     order: number;
     socketID: string;
     isMaster: boolean;
+    finished: boolean;
 }
 declare type PlayerRole = 'voting' | 'judging';
-declare type GamePhase = 'TBS' | 'ANSWERING' | 'VOTING';
+declare type GamePhase = 'TBS' | 'STARTED' | 'ANSWERING' | 'VOTING' | 'ENDED';
 declare type Test = 'test';

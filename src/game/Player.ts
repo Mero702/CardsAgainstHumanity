@@ -1,3 +1,5 @@
+import { WhiteCard, PlayerRole, PlayerInfo } from "../../types/GameTypes"
+
 export default class Player {
     socketID: string
     name: string
@@ -5,7 +7,7 @@ export default class Player {
     order: number
     score: number
     cards: WhiteCard[]
-    
+
     constructor(socketID: string, username: string, isMaster: boolean) {
         this.socketID = socketID
         this.name = username
@@ -15,7 +17,7 @@ export default class Player {
         this.cards = []
     }
     getRole(turn: number, playerCount: number): PlayerRole {
-       return ((turn-1)%playerCount+1 == this.order) ? 'voting' : 'judging'
+        return ((turn - 1) % playerCount + 1 == this.order) ? 'voting' : 'judging'
     }
     getInfo(): PlayerInfo {
         return {

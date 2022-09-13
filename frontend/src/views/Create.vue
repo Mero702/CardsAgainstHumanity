@@ -1,171 +1,220 @@
 <template>
   <div class="create">
-    <form action="/" @submit.prevent="createGame" method="post" v-if="!error">
-      <div class="decks">
-        <div v-for="(deck, key) in decks" v-bind:key="key">
-          <label :for="key.toString()" v-text="deck.name"></label>
-          <input type="checkbox" v-model="deck.selected" :id="key.toString()">
+    <form action="/" @submit.prevent="createGame" method="post">
+      <div v-if="!upload" class="selection">
+        <div class="decks">
+          <div v-for="(deck, key) in decks" v-bind:key="key">
+            <label :for="key.toString()" v-text="deck.name" :title="deck.name"></label>
+            <input type="checkbox" v-model="deck.selected" :id="key.toString()" />
+          </div>
+        </div>
+        <!-- TODO: style file upload if possible -->
+        <div class="customDecks">
+          <input type="checkbox" id="includeCustomDecks" v-model="includeCustomDecks">
+          <label for="includeCustomDecks">Include Custom decks</label>
         </div>
       </div>
-      <div class="upload">
-        <p>Additionally you can upload your own Pack here: </p> <br><br>
-        <input type="file" name="files" id="file" @change="updateFiles" accept=".json" multiple>
-        for more information's visit <router-link to="/help">help</router-link>
+
+      <div class="upload" v-else>
+        <p><a @click="upload = false">Back</a></p><br>
+        <Help :shortened="true" /> <br>
+        <label for="file">Upload your custom pack:</label>
+        <br />
+        <input type="file" name="files" id="file" @change="updateFiles" accept=".json" multiple />
+        <br>
+        <input type="button" value="Remove custom decks" @click="customDecks = []">
       </div>
-      <input type="submit" value="submit">
+
+      <input type="submit" value="Create" class="createBtn" v-if="!includeCustomDecks || upload" />
+      <input type="submit" value="Upload" class="createBtn" v-else @click.prevent="upload = true" />
     </form>
-    <div class="errorBox" v-else>
-      <p>
-        Opps you have encountered some error. <br>The server is not responding. Please try again later
+    <div class="cardCount">
+      <p :style="{color: (getCount().packs < 1)? 'var(--accent-color)':'var(--color)'}">Number of packs: {{
+      getCount().packs }}</p>
+      <p :style="{color: (getCount().white < 25)?'var(--accent-color)':'var(--color)'}">Number of white cards: {{
+      getCount().white }}
+      </p>
+      <p :style="{color: (getCount().black < 3)?'var(--accent-color)':'var(--color)'}">Number of black cards: {{
+      getCount().black }}
       </p>
     </div>
-    <div class="cardCount" v-if="!error">
-      <p>Number of packs: {{ getCount().packs }}</p>
-      <p>Number of white cards: {{getCount().white}}</p>
-      <p>Number of black cards: {{getCount().black}}</p>
-     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
-import Ajv from 'ajv'
-import packSchema from '../scripts/packSchema.json'
-import apiRequest from '@/scripts/apiRequest';
-import router from '@/router/index.js';
-interface SelectionDeck extends DeckInfo{
-  selected: boolean
-}
-const ajv = new Ajv()
-const validate = ajv.compile(packSchema)
-const decks = ref<SelectionDeck[]>([])
-const customDecks = ref<Deck[]>([])
-const finishedReading = ref(true)
-const error = ref('')
-    
-  
-    function getCount() {
-      let includedDecks = decks.value.filter(x => x.selected)
-      includedDecks = [...includedDecks, ...customDecks.value.map( el => { return {
+import { ref, onMounted } from "vue";
+import router from "@/router/index.js";
+import { useGameStore } from "@/stores/GameStore";
+
+import Ajv from "ajv";
+import packSchema from "@/scripts/packSchema.json";
+import apiRequest from "@/scripts/apiRequest";
+import Help from "./Help.vue";
+
+const ajv = new Ajv();
+const validate = ajv.compile(packSchema);
+
+const includeCustomDecks = ref(false);
+const upload = ref(false);
+const decks = ref<Selectable<DeckInfo>[]>([]);
+const customDecks = ref<Deck[]>([]);
+const finishedReading = ref(true);
+
+const GameStore = useGameStore();
+
+function getCount() {
+  let includedDecks = decks.value.filter((x) => x.selected);
+  includedDecks = [
+    ...includedDecks,
+    ...customDecks.value.map((el) => {
+      return {
         name: el.name,
         selected: true,
         white: el.white.length,
-        black: el.black.length
-      }})]
+        black: el.black.length,
+      };
+    }),
+  ];
 
-      return {
-        packs: includedDecks.length,
-        white: includedDecks.reduce((acc, cur) => acc + cur.white, 0),
-        black: includedDecks.reduce((acc, cur) => acc + cur.black, 0)
-      }
-    }
-    async function fetchDecks() {
-      try {
-        const deckNames = await apiRequest('/decks', 'GET', undefined) as DeckInfo[]
-        decks.value = deckNames.map(x => ({
-          name: x.name,
-          white: x.white,
-          black: x.black,
-          selected: false
-        }))
-      } catch(e: any) {
-        error.value = e
-      }
-    }
-    function updateFiles(event: any) {
-      customDecks.value = []
-      finishedReading.value = false
+  return {
+    packs: includedDecks.length,
+    white: includedDecks.reduce((acc, cur) => acc + cur.white, 0),
+    black: includedDecks.reduce((acc, cur) => acc + cur.black, 0),
+  };
+}
+async function fetchDecks() {
+  try {
+    const deckNames = (await apiRequest(
+      "/decks",
+      "GET",
+      undefined
+    )) as DeckInfo[];
+    decks.value = deckNames.map((x) => ({
+      name: x.name,
+      white: x.white,
+      black: x.black,
+      selected: false,
+    }));
+  } catch (e: any) {
+    GameStore.$state.error = e;
+  }
+}
+function updateFiles(event: any) {
+  customDecks.value = [];
+  finishedReading.value = false;
 
-      const reader = new FileReader();
-      reader.addEventListener('load', (e) => {
-        let pack
-        try {
-          pack = JSON.parse(e?.target?.result as string)
-          if(!validate(pack))
-              throw 'In valid pack format'
-        } catch (error) {
-          customDecks.value = []
-          event.target.value = ''
-          console.error(error);
-          alert("one of your files is not in the correct JSON format")
-        }
-        customDecks.value.push(pack);
-        finishedReading.value = true
-      })
-      event.target.files.forEach((file: Blob) => {
-        reader.readAsText(file)
-      });
+  const reader = new FileReader();
+  reader.addEventListener("load", (e) => {
+    let pack;
+    try {
+      pack = JSON.parse(e?.target?.result as string);
+      if (!validate(pack)) throw "In valid pack format";
+    } catch (error) {
+      customDecks.value = [];
+      event.target.value = "";
+      GameStore.$state.error =
+        "one of your files is not in the correct JSON format";
     }
-    async function createGame() {
-      try {
-        const response = await apiRequest('/createGame', 'POST', {
-          decks: decks.value.filter(x => x.selected).map(x => x.name),
-          customDecks: customDecks.value
-        })
-        if(response.error)
-          throw response.error
-        if(response.roomID)
-          router.push(`/game/${response.roomID}`);
-        else
-          error.value = 'An error occurred, the room may or may not have been created'
-      } catch (e) {
-        console.error(e);
-        error.value = 'An error occurred, failed to create the room'
-      }
-    }
-  onMounted(() => {
-    fetchDecks()
-  })
+    customDecks.value.push(pack);
+    finishedReading.value = true;
+  });
+  event.target.files.forEach((file: Blob) => {
+    reader.readAsText(file);
+  });
+}
+async function createGame() {
+  const response = await apiRequest("/createGame", "POST", {
+    decks: decks.value.filter((x) => x.selected).map((x) => x.name),
+    customDecks: customDecks.value,
+  });
+
+  if (response.error) GameStore.$state.error = response.error;
+  if (response.roomID) router.push(`/game/${response.roomID}`);
+}
+
+onMounted(() => {
+  fetchDecks();
+});
 </script>
 
 <style scoped>
-  .create {
-    display: grid;
-    grid-template-rows: 1fr 3em;
-  }
-  form {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-      width: 80%;
-      text-align: center;
-      margin: 0 auto;
-  }
-  form > * {
-      width: 100%;
-      margin: 1ch 0;
-  }
-  .decks {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      column-gap: 1ch;
-      margin: .8em 0;
-  }
-  .decks > div {
-      display: grid;
-      grid-template-columns: 1fr 1em;
-      column-gap: 1ch;
-  }
-  .cardCount {
-    margin-top: .5em;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-  }
-  .cardCount > p:not(:last-child){
-    margin-right: .7ch;
-  }
-  .cardCount > p:not(:last-child)::after {
-    content: '|';
-    margin-left: .7ch;
-  }
-  .upload {
-    text-align: left;
-  }
-  .upload > *{
-    display: inline;
-    text-align: left;
-  }
+@import url("@/assets/scrollbar.css");
 
+.create,
+form,
+.selection {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) fit-content(3em);
+}
+
+form {
+  display: grid;
+  max-width: 90ch;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.decks {
+  display: grid;
+  /* grid-template-columns: repeat(3, 1fr); */
+  grid-template-columns: repeat(auto-fit, minmax(28ch, 1fr));
+  column-gap: 1ch;
+  row-gap: 0.25ch;
+  margin: 0.8em 0;
+  overflow: auto;
+}
+
+.decks>div {
+  display: grid;
+  grid-template-columns: 1fr 1em;
+  column-gap: 1ch;
+  align-items: center;
+}
+
+.decks>div>label {
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.createBtn {
+  width: fit-content;
+  margin: 1ch auto;
+  font-size: x-large;
+}
+
+.cardCount {
+  margin-top: 0.5em;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.cardCount>p:not(:last-child) {
+  margin-right: 0.7ch;
+}
+
+.cardCount>p:not(:last-child)::after {
+  content: "|";
+  margin-left: 0.7ch;
+}
+
+.upload {
+  text-align: left;
+}
+
+.upload>* {
+  display: inline;
+  text-align: left;
+}
+
+.customDecks {
+  display: flex;
+  align-items: center;
+}
+
+.customDecks input {
+  margin-right: 1ch;
+}
 </style>

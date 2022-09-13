@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-
+import { Deck, DeckInfo } from "../../types/GameTypes"
 export default class DeckManager {
     private decks: Deck[] | undefined = undefined;
     private infos: DeckInfo[] | undefined;
@@ -20,6 +20,6 @@ export default class DeckManager {
 
     public async loadDecks(path: string): Promise<void> {
         this.decks = JSON.parse(readFileSync(path, "utf8")) as unknown as Deck[];
-        this.infos = this.decks!.map(deck => ({name: deck.name, white: deck.white.length, black: deck.black.length}));
+        this.infos = this.decks!.map(deck => ({ name: deck.name, white: deck.white.length, black: deck.black.length }));
     }
 }

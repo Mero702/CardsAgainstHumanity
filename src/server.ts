@@ -1,5 +1,5 @@
 import Express, { Application, Request, Response } from "express";
-import {createServer} from "http";
+import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -15,11 +15,11 @@ const app: Application = Express();
 const server = createServer(app)
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, GameSocketData>(server
   , {
-  cors: {
-    origin: "http://localhost:3001",
-    methods: ["GET", "POST"]
+    cors: {
+      origin: "http://localhost:3001",
+      methods: ["GET", "POST"]
+    }
   }
-}
 )
 
 const port: number = (process.env.PORT || 3000) as number;
@@ -31,14 +31,12 @@ if (true || process.env.NODE_ENV == "development") {
   const cors = await import('cors')
   app.use(cors.default())
 }
-
-
 app.use(Express.json())
-app.use('/', Express.static(__dirname+'/public'))
+app.use('/', Express.static(__dirname + '/public'))
 
 const ajv = new Ajv();
 
-const CustomDecksSchema = await import('./CustomDeckSchema.json')
+const CustomDecksSchema = await import('./CustomDeckSchema.json', { assert: { type: "json" } })
 const validateCustomDecks = ajv.compile(CustomDecksSchema);
 
 const decks = new DeckManager(path.join(__dirname, "/decks/cah-cards-full.json"))
@@ -62,11 +60,11 @@ app.post('/api/createGame', (req: Request, res: Response) => {
     else
       return res.status(400).json({ error: "Invalid custom deck Format" })
   }
-  // TODO: Test for minimal number of cards
-  let id = gameManager.createGame(deckLoader.getDeck())
-  if(!id)
-    return res.status(400).json({ error: "Could not create game" })
-  res.json({roomID: id})
+  let result = gameManager.createGame(deckLoader.getDeck())
+
+  if (result.error)
+    return res.status(400).json({ error: result.message })
+  res.json({ roomID: result.id })
 })
 
 io.on('connection', (socket) => {
@@ -132,15 +130,15 @@ io.on('connection', (socket) => {
     if (!game)
       return callback({ ok: false, error: `No game with the id '${socket.data.room}' found` })
 
-    let error = game.submitVoting(socket.id, answerID, (winnerName, blackCard, answers, answerID) => 
+    let error = game.submitVoting(socket.id, answerID, (winnerName, blackCard, answers, answerID) =>
       io.to(`room-${socket.data.room}`).emit('WinnerAnnouncement', winnerName, blackCard, answers, answerID)
     )
-    if(error)
+    if (error)
       return callback({ ok: false, error })
 
     game.players.forEach(p => {
-      if(game && game.currentBlackCard)
-      io.to(p.socketID).emit('updateCards', p.cards, game.currentBlackCard, p.getRole(game.turn, game.players.length))
+      if (game && game.currentBlackCard)
+        io.to(p.socketID).emit('updateCards', p.cards, game.currentBlackCard, p.getRole(game.turn, game.players.length))
     })
 
     io.to(`room-${socket.data.room}`).emit('updateUsers', game.players.map(x => x.getInfo()))
@@ -148,20 +146,22 @@ io.on('connection', (socket) => {
     io.to(`room-${socket.data.room}`).emit('updatePhase', game.phase)
   })
 
-  socket.on("leaveRoom", () => {
+  socket.on("disconnect", () => {
     let game = gameManager.findGame(socket.data.room)
     if (!game)
       return;
     game.leaveRoom(socket.id)
-  //@ts-ignore
+    //@ts-ignore
     let votingPlayer = game.players.find(p => p.getRole(game.turn, game.players.length) == 'voting')
     if (votingPlayer)
       io.to(votingPlayer.socketID).emit('voting', game.answers)
-      io.to(`room-${socket.data.room}`).emit('updateUsers', game.players.map(x => x.getInfo()))
-      io.to(`room-${socket.data.room}`).emit('updatePhase', game.phase)
-      io.to(`room-${socket.data.room}`).emit('updateWaiting', game.unfinishedPlayers)
+    io.to(`room-${socket.data.room}`).emit('updateUsers', game.players.map(x => x.getInfo()))
+    io.to(`room-${socket.data.room}`).emit('updatePhase', game.phase)
+    io.to(`room-${socket.data.room}`).emit('updateWaiting', game.unfinishedPlayers)
 
-    })
+    if (game.players.length == 0)
+      gameManager.removeGame(game.uuid)
+  })
 })
 server.listen(port, () => {
   console.log(`Server is running on port http://localhost:${port}/`);

@@ -6,47 +6,59 @@ import type { ClientToServerEvents, ServerToClientEvents } from '@/types/GameSoc
 export type GameState = {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
   isConnected: boolean;
-  room: string;
-  username: string;
-  isMaster: boolean;
-  isGameRunning: boolean,
-  finished: boolean,
-  role: PlayerRole,
-  phase: GamePhase;
-  playerList: PlayerInfo[];
-  unfinishedPlayers: string[];
-  blackCard: BlackCard;
-  handCards: HandCard[];
-  votingAnswers: Selectable<Answer>[];
+  error: string;
+  game: {
+    room: string;
+    phase: GamePhase;
+    playerList: PlayerInfo[];
+    unfinishedPlayers: string[]; // TODO: merge with playerList
+  }
+  user: {
+    username: string;
+    isMaster: boolean;
+    finished: boolean,
+    role: PlayerRole,
+  }
+  cards: {
+    blackCard: BlackCard;
+    whiteCards: HandCard[];
+    votingAnswers: Selectable<Answer>[];
+  }
   winner: {
     show: boolean,
     name: string,
     cards: Answer[],
     black: BlackCard,
     winner: string
-  },
+  }
 }
 
 export const useGameStore = defineStore({
   id: "GameStore",
   state: () => ({
-    socket: io('localhost:3000'),
+    socket: io(import.meta.env.DEV ? 'localhost:3000' : ''),
     isConnected: false,
-    room: "",
-    username: "",
-    isMaster: false,
-    isGameRunning: false,
-    finished: false,
-    role: "voting",
-    phase: "TBS",
-    playerList: [],
-    unfinishedPlayers: [],
-    blackCard: {
-      text: "",
-      pick: 0
+    error: '',
+    game: {
+      room: "",
+      phase: 'TBS',
+      playerList: [],
+      unfinishedPlayers: [],
     },
-    handCards: [],
-    votingAnswers: [],
+    user: {
+      username: "",
+      isMaster: false,
+      finished: false,
+      role: "voting",
+    },
+    cards: {
+      blackCard: {
+        text: "",
+        pick: 0
+      },
+      whiteCards: [],
+      votingAnswers: [],
+    },
     winner: {
       show: false,
       name: '',
@@ -66,45 +78,61 @@ export const useGameStore = defineStore({
       const socketEvents = await import("@/scripts/socketEvents")
       socketEvents.default()
     },
+    joinRoom(username: string, roomID: string) {
+
+      this.$state.socket.emit('joinRoom', roomID, username, (result) => {
+        if (result.ok) {
+          this.$state.user.username = username
+          this.$state.game.room = roomID
+          this.$state.isConnected = true
+          this.$state.user.isMaster = result.isMaster
+        } else {
+          if (result.error)
+            this.$state.error = result.error
+        }
+      })
+    },
     startGame() {
       this.$state.socket.emit("startGame", (param) => {
-        if(!param.ok)
-          alert(param.error)
+        if (!param.ok)
+          this.$state.error = param.error || "Something went wrong"
       })
     },
     selectCard(key: string) {
       let index = parseInt(key)
 
-      if(this.$state.handCards[index].selected) {
-        this.$state.handCards[index].selected = false
-        this.$state.handCards.filter(x => x.selected && this.$state.handCards[index].order > x.order).forEach(x => x.order--)
-        this.$state.handCards[index].order = 0
+      if (this.$state.cards.whiteCards[index].selected) {
+        this.$state.cards.whiteCards[index].selected = false
+        this.$state.cards.whiteCards.filter(x => x.selected && this.$state.cards.whiteCards[index].order > x.order).forEach(x => x.order--)
+        this.$state.cards.whiteCards[index].order = 0
       } else {
-        if(this.$state.blackCard.pick <= this.$state.handCards.filter(x => x.selected).length)
-        return;
-        this.$state.handCards[index].selected = true
-        this.$state.handCards[index].order = this.$state.handCards.filter(x => x.selected).length
+        if (this.$state.cards.blackCard.pick != 1 && this.$state.cards.blackCard.pick <= this.$state.cards.whiteCards.filter(x => x.selected).length)
+          return;
+        if (this.$state.cards.blackCard.pick == 1)
+          this.$state.cards.whiteCards.filter(x => x.selected).forEach(x => x.selected = false)
+        this.$state.cards.whiteCards[index].selected = true
+        this.$state.cards.whiteCards[index].order = this.$state.cards.whiteCards.filter(x => x.selected).length
       }
     },
     submitAnswer() {
-      let selectedCards = this.$state.handCards.filter(card => card.selected).map(x => {const {selected, ...rest} = x; return rest})
-      if(selectedCards.length != this.$state.blackCard.pick)
-        return alert("You must select " + this.$state.blackCard.pick + " cards");
+      let selectedCards = this.$state.cards.whiteCards.filter(card => card.selected).map(x => { const { selected, ...rest } = x; return rest })
+      if (selectedCards.length != this.$state.cards.blackCard.pick)
+        return alert("You must select " + this.$state.cards.blackCard.pick + " cards");
       selectedCards.sort((a, b) => a.order - b.order)
       this.$state.socket.emit("submitAnswer", selectedCards, (param) => {
-        if(!param.ok)
+        if (!param.ok)
           alert(param.error)
       });
     },
     selectAnswer(key: string) {
-      this.$state.votingAnswers.forEach(x => x.selected = false)
-      let item = this.$state.votingAnswers.find(x => x.id == key)
-      if(item != undefined) (item.selected = true)
+      this.$state.cards.votingAnswers.forEach(x => x.selected = false)
+      let item = this.$state.cards.votingAnswers.find(x => x.id == key)
+      if (item != undefined) (item.selected = true)
     },
     submitVoting() {
-      let selectedCards = this.$state.votingAnswers.filter(card => card.selected).map(x => {const {selected, ...rest} = x; return rest})
+      let selectedCards = this.$state.cards.votingAnswers.filter(card => card.selected).map(x => { const { selected, ...rest } = x; return rest })
       this.$state.socket.emit("submitVoting", selectedCards[0].id, (param) => {
-        if(!param.ok)
+        if (!param.ok)
           alert(param.error)
       })
     }

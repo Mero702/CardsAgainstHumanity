@@ -1,13 +1,22 @@
 <template>
-    <div class="gameOverlay">
-        <slot class="gameContainer">
-          Error
-        </slot>
-        <PlayerList :playerList="GameStore.$state.playerList" class="PlayerList"/>
+  <div class="gameOverlay">
+    <div class="gameContainer heightFix">
+      <GameViewStart v-if="GameStore.$state.game.phase == 'TBS' && GameStore.$state.user.isMaster" />
+      <div v-else-if="GameStore.$state.game.phase == 'TBS'">Waiting for host to Start</div>
+
+      <ChooseAnswer
+        v-else-if="GameStore.$state.game.phase == 'ANSWERING' && (GameStore.$state.user.role == 'judging' && !GameStore.$state.user.finished)" />
+      <VoteAnswer v-else-if="GameStore.$state.game.phase == 'VOTING' && GameStore.$state.user.role == 'voting'" />
+
     </div>
+    <PlayerList :playerList="GameStore.$state.game.playerList" class="PlayerList" />
+  </div>
 </template>
 
 <script setup lang="ts">
+import GameViewStart from './GameViewStart.vue';
+import ChooseAnswer from './ChooseAnswer.vue';
+import VoteAnswer from './VoteAnswer.vue';
 import PlayerList from './PlayerList.vue';
 import { useGameStore } from '@/stores/GameStore';
 
@@ -17,13 +26,9 @@ const GameStore = useGameStore()
 .gameOverlay {
   height: 100%;
   width: 100%;
-  overflow:hidden;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 5em;
-}
-.gameOverlay {
-  overflow: auto;
+  grid-template-rows: 1fr fit-content(100%);
 }
 </style>
 

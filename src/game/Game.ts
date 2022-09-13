@@ -1,5 +1,6 @@
 import { getRandomOrder, shuffleArray } from './utils';
 import Player from './Player'
+import { Deck, GamePhase, BlackCard, Answer, WhiteCard, PlayerRole, OrderedWhiteCard, PlayerInfo } from '../../types/GameTypes';
 export default class Game {
     uuid: string;
     pile: Deck;
@@ -44,6 +45,8 @@ export default class Game {
             return 'game already started'
         if (this.players.length < 3)
             return 'you need at least 3 Players'
+        if (this.pile.white.length < this.players.length * 5 || this.pile.black.length < 3)
+            return 'not enough cards in the deck'
 
         this.shuffleCards()
         this.drawBlackCard()
@@ -70,11 +73,11 @@ export default class Game {
             return 'Game is not in the answering phase'
         if (this.playerAnswerMap.some(x => x[1] == id))
             return 'User has already submitted an answer';
-        
+
         let randomID: string
         do {
             randomID = Math.random().toString(36).substring(2, 7)
-        }while(this.playerAnswerMap.some(x => x[0] == randomID))
+        } while (this.playerAnswerMap.some(x => x[0] == randomID))
         this.playerAnswerMap.push([randomID, id])
         let answer: Answer = { id: randomID, cards: [] }
         submittedAnswer.forEach(card => {
@@ -99,7 +102,7 @@ export default class Game {
         }
 
     }
-    submitVoting(id: string, answerID: string, announceWinner: (winnerName: string, blackCard: BlackCard, answers: Answer[], answerID: string)=> void) {
+    submitVoting(id: string, answerID: string, announceWinner: (winnerName: string, blackCard: BlackCard, answers: Answer[], answerID: string) => void) {
         let player = this.findPlayer(id)
         if (!player)
             return 'Player is not in this game';
@@ -108,19 +111,19 @@ export default class Game {
         if (player.getRole(this.turn, this.players.length) != 'voting')
             return;
         let roundWinnerID = this.playerAnswerMap.find(x => x[0] == answerID)?.[1]
-        if(!roundWinnerID)
+        if (!roundWinnerID)
             return 'an unknown error occurred while voting'
         let roundWinner = this.findPlayer(roundWinnerID)
         if (!roundWinner)
             return 'an unknown error occurred while voting'
         roundWinner.score += 1
-        if(this.currentBlackCard)
+        if (this.currentBlackCard)
             announceWinner(roundWinner.name, this.currentBlackCard, this.answers, answerID)
 
         this.unfinishedPlayers = []
         // Removes used cards
         this.answers.forEach(answer => {
-            this.usedCards.white.push(...answer.cards.map(card => ({text:card.text})))
+            this.usedCards.white.push(...answer.cards.map(card => ({ text: card.text })))
         })
         this.drawBlackCard()
         this.playerAnswerMap = []

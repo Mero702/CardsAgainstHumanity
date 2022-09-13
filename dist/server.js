@@ -25,7 +25,7 @@ if (true || process.env.NODE_ENV == "development") {
 app.use(Express.json());
 app.use('/', Express.static(__dirname + '/public'));
 const ajv = new Ajv();
-const CustomDecksSchema = await import('./CustomDeckSchema.json');
+const CustomDecksSchema = await import('./CustomDeckSchema.json', { assert: { type: "json" } });
 const validateCustomDecks = ajv.compile(CustomDecksSchema);
 const decks = new DeckManager(path.join(__dirname, "/decks/cah-cards-full.json"));
 const gameManager = new GameManager();

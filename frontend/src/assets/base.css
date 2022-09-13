@@ -1,5 +1,95 @@
-/* color palette from <https://github.com/vuejs/theme> */
 :root {
+  --background-color: #2c313a;
+  --background-color-header: #282c34;
+  --color: #c0c0c0;
+  --accent-color: tomato;
+}
+
+@font-face {
+  font-family: Helvetica-Bold;
+  src: url(/Helvetica-Bold.ttf);
+}
+
+* {
+  font-family: Helvetica-Bold, Arial, sans-serif;
+  color: var(--color);
+  padding: 0;
+  margin: 0;
+}
+
+.heightFix {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus,
+a:active {
+  text-decoration: 0.35ch dotted underline var(--color);
+  outline: none;
+}
+
+a.router-link-exact-active {
+  color: var(--accent-color);
+}
+
+input[type="text"] {
+  padding: 0.1ch 0.8ch;
+  border-radius: 100em;
+  font-size: 1em;
+  color: black;
+  padding-left: 1ch;
+  padding-right: 1ch;
+}
+
+button,
+input[type="submit"] {
+  color: black;
+  border: none;
+  border-radius: 100em;
+  padding: 0.4ch 1ch;
+  font-size: 1em;
+  font-size: x-large;
+  cursor: pointer;
+  background-color: var(--accent-color);
+}
+
+button:hover,
+button:active,
+button:focus,
+input[type="submit"]:hover,
+input[type="submit"]:active,
+input[type="submit"]:focus,
+input[type="text"]:hover,
+input[type="text"]:active,
+input[type="text"]:focus {
+  outline: whitesmoke 1px solid;
+  outline-offset: 2px;
+}
+
+label:hover {
+  color: var(--accent-color);
+}
+
+.pillInput>*:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.pillInput>*:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+
+/* color palette from <https://github.com/vuejs/theme> */
+/* :root {
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
   --vt-c-white-mute: #f2f2f2;
@@ -22,6 +112,7 @@
 }
 
 /* semantic color variables for this project */
+/*
 :root {
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);
@@ -72,3 +163,5 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+*/

@@ -1,10 +1,12 @@
 <template>
-    <div class="cardGrid" :style="{'--multiplier' : cardCount()}">
-        <Card :card="GameStore.$state.blackCard" type="BLACK" ref="displayedBlackCard" class="displayedBlackCard"/>
+    <div class="cardGrid heightFix" :style="{'--multiplier' : cardCount()}">
+        <Card :card="GameStore.$state.cards.blackCard" type="BLACK" ref="displayedBlackCard"
+            class="displayedBlackCard" />
         <div class="heightFix">
-            <Cards :cards="GameStore.$state.votingAnswers" @toggleCard="GameStore.selectAnswer"/>
+            <Cards :cards="GameStore.$state.cards.votingAnswers" @toggleCard="GameStore.selectAnswer" />
         </div>
-        <button class="submit" @click="GameStore.submitVoting" :style="{'--width': BlackCardWith+'px'}"> Submit </button>
+        <button class="submit" @click="GameStore.submitVoting" :style="{'--width': BlackCardWith+'px'}"> Submit
+        </button>
     </div>
 </template>
 
@@ -19,7 +21,7 @@ const GameStore = useGameStore()
 const BlackCardWith = ref(0)
 
 function cardCount() {
-    return Math.max(...GameStore.$state.votingAnswers.map(x => x.cards.length)) + 'fr';
+    return Math.max(...GameStore.$state.cards.votingAnswers.map(x => x.cards.length)) + 'fr';
 }
 
 onMounted(() => {
@@ -32,14 +34,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.cardGrid{
+.cardGrid {
     --multiplier: 1fr;
     overflow: auto;
     display: grid;
-    grid-template-rows: 1fr var(--multiplier) 2.5em; 
+    grid-template-rows: 1fr var(--multiplier) fit-content;
     grid-row-gap: 1ch;
 
 }
+
 .submit {
     --width: fit-content;
     margin: 0 auto;
