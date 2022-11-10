@@ -35,8 +35,10 @@ export declare interface PlayerInfo {
     score: number;
     order: number;
     socketID: string;
-    isMaster: boolean;
+    isHost: boolean;
+    finished: boolean;
+    role: PlayerRole;
 }
-export declare type PlayerRole = 'voting' | 'judging';
+export declare type PlayerRole = 'ANSWERING' | 'VOTING';
 export declare type GamePhase = 'TBS' | 'ANSWERING' | 'VOTING';
 export declare type Test = 'test';

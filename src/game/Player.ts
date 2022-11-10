@@ -3,29 +3,32 @@ import { WhiteCard, PlayerRole, PlayerInfo } from "../../types/GameTypes"
 export default class Player {
     socketID: string
     name: string
-    isMaster: boolean
+    isHost: boolean
     order: number
     score: number
     cards: WhiteCard[]
+    finished: boolean
+    role: PlayerRole
 
-    constructor(socketID: string, username: string, isMaster: boolean) {
+    constructor(socketID: string, username: string, isHost: boolean) {
         this.socketID = socketID
         this.name = username
-        this.isMaster = isMaster
+        this.isHost = isHost
         this.order = 0
         this.score = 0
         this.cards = []
-    }
-    getRole(turn: number, playerCount: number): PlayerRole {
-        return ((turn - 1) % playerCount + 1 == this.order) ? 'voting' : 'judging'
+        this.finished = true;
+        this.role = 'ANSWERING'
     }
     getInfo(): PlayerInfo {
         return {
             socketID: this.socketID,
             name: this.name,
-            isMaster: this.isMaster,
+            isHost: this.isHost,
             order: this.order,
-            score: this.score
+            score: this.score,
+            finished: this.finished,
+            role: this.role
         }
     }
 }
