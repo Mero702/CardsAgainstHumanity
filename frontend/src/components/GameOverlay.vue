@@ -1,12 +1,20 @@
 <template>
   <div class="gameOverlay">
     <div class="gameContainer heightFix">
-      <GameViewStart v-if="GameStore.$state.game.phase == 'TBS' && GameStore.$state.user.isMaster" />
+      <GameViewStart v-if="GameStore.$state.game.phase == 'TBS' && GameStore.$state.user.isHost" />
       <div v-else-if="GameStore.$state.game.phase == 'TBS'">Waiting for host to Start</div>
 
+      <!-- TODO: Not sure what !finished means maybe useless -->
       <ChooseAnswer
-        v-else-if="GameStore.$state.game.phase == 'ANSWERING' && (GameStore.$state.user.role == 'judging' && !GameStore.$state.user.finished)" />
-      <VoteAnswer v-else-if="GameStore.$state.game.phase == 'VOTING' && GameStore.$state.user.role == 'voting'" />
+        v-else-if="GameStore.$state.game.phase == 'ANSWERING' && (GameStore.$state.user.role == 'ANSWERING' && !GameStore.$state.user.finished)" />
+      <p v-else-if="GameStore.$state.game.phase == 'ANSWERING' && (GameStore.$state.user.role == 'VOTING')">
+        <!-- TODO: Maybe just show cards -->
+        Wait for other player/s
+      </p>
+      <VoteAnswer v-else-if="GameStore.$state.game.phase == 'VOTING' && GameStore.$state.user.role == 'VOTING'" />
+      <p v-else-if="GameStore.$state.game.phase == 'VOTING' && GameStore.$state.user.role == 'ANSWERING'">
+        Waiting for other player
+      </p>
 
     </div>
     <PlayerList :playerList="GameStore.$state.game.playerList" class="PlayerList" />
