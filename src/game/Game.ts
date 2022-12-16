@@ -69,14 +69,7 @@ export default class Game {
     return { isHost: isHost }
   }
 
-  startGame(
-    updateCards: (
-      socketID: string,
-      cards: WhiteCard[],
-      card: BlackCard,
-      role: PlayerRole
-    ) => void
-  ): string | undefined {
+  startGame(): string | undefined {
     if (this.phase != "TBS") return "game already started"
     if (this.players.length < 3) return "you need at least 3 Players"
     if (
@@ -87,37 +80,22 @@ export default class Game {
 
     this.shuffleCards()
     let randomID = getRandomOrder(this.players.length)
-    this.players.forEach((player) => (player.order = randomID.next().value))
-
-    this.nextPhase(updateCards)
+    this.players.forEach((player) => (player.order = randomID.next().value - 1))
+    this.nextPhase()
   }
-  nextPhase(
-    updateCards: (
-      socketID: string,
-      cards: WhiteCard[],
-      card: BlackCard,
-      role: PlayerRole
-    ) => void
-  ): string | void {
+  nextPhase(): string | void {
     this.phase = this.phase == "ANSWERING" ? "VOTING" : "ANSWERING"
-    if (this.phase == "ANSWERING") this.drawBlackCard()
+    if (this.phase == "ANSWERING") {
+      this.drawBlackCard()
+      this.round++
+    }
     this.players.forEach((player) => {
       this.giveCards(player)
       player.role =
-        this.round % this.players.length == player.order
+        (player.order + this.round) % this.players.length == 0
           ? "VOTING"
           : "ANSWERING"
       player.finished = this.phase != player.role
-      if (this.phase == "ANSWERING") {
-        if (this.currentBlackCard)
-          updateCards(
-            player.socketID,
-            player.cards,
-            this.currentBlackCard,
-            player.role
-          )
-        else return "an unknown error occurred while drawing a black card"
-      }
     })
   }
   submitAnswer(
@@ -147,9 +125,12 @@ export default class Game {
 
     player.finished = true
 
+    // if all players, who aren't the voting player, have submitted an answer
     if (this.answers.length == this.players.length - 1) {
-      this.nextPhase()
+      var votingPlayer = this.players.find((p) => p.role == "VOTING")
+      if (!votingPlayer) throw "No voting player found"
       startVoting(votingPlayer.socketID, this.answers)
+      this.nextPhase()
     }
   }
   submitVoting(
@@ -170,6 +151,7 @@ export default class Game {
     if (!roundWinnerID) return "an unknown error occurred while voting"
     let roundWinner = this.findPlayer(roundWinnerID)
     if (!roundWinner) return "an unknown error occurred while voting"
+
     roundWinner.score += 1
     if (this.currentBlackCard)
       announceWinner(
@@ -178,30 +160,15 @@ export default class Game {
         this.answers,
         answerID
       )
-    this.unfinishedPlayers = []
     // Removes used cards
     this.answers.forEach((answer) => {
       this.usedCards.white.push(
         ...answer.cards.map((card) => ({ text: card.text }))
       )
     })
-    this.drawBlackCard()
     this.playerAnswerMap = new PlayerAnswerMap()
     this.answers = []
-    this.round += 1
-    this.phase = "ANSWERING"
-    this.nextPlayer()
-
-    this.players.forEach((p) => {
-      this.giveCards(p)
-      if (p.role == "VOTING") this.unfinishedPlayers.push(p.name)
-    })
-  }
-  nextPlayer() {
-    let player = this.players.find((p) => p.role == "VOTING")
-    if (!player) return
-    player.role = "ANSWERING"
-    this.players.find((p) => (p.order = player?.order || 0 + 1))
+    this.nextPhase()
   }
   leaveRoom(id: string) {
     let player = this.findPlayer(id)

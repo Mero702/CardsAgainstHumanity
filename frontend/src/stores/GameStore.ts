@@ -14,7 +14,6 @@ export type GameState = {
     room: string
     phase: GamePhase
     playerList: PlayerInfo[]
-    unfinishedPlayers: string[] // TODO: merge with playerList
   }
   user: {
     username: string
@@ -47,7 +46,6 @@ export const useGameStore = defineStore({
         room: "",
         phase: "TBS",
         playerList: [],
-        unfinishedPlayers: [],
       },
       user: {
         username: "",
@@ -76,6 +74,15 @@ export const useGameStore = defineStore({
     } as GameState),
   getters: {},
   actions: {
+    isWaiting() {
+      return (
+        this.$state.game.phase == "TBS" ||
+        (this.$state.game.phase == "VOTING" &&
+          this.$state.user.role == "ANSWERING") ||
+        (this.$state.game.phase == "ANSWERING" &&
+          (this.$state.user.role == "VOTING" || this.$state.user.finished))
+      )
+    },
     async initSocket() {
       const socketEvents = await import("@/scripts/socketEvents")
       socketEvents.default()

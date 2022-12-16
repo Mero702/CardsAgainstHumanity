@@ -14,7 +14,6 @@
 // TODO: change vote selection to horizontal if multiple cards
 // TODO: bug in player leave (clears card of not left player)
 // TODO: refactor css
-// TODO: fix multiplayer/waiting list
 import { useGameStore } from "./stores/GameStore";
 import ErrorBox from "./components/ErrorBox.vue";
 import { watch } from "vue";

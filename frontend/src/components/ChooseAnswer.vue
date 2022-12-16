@@ -5,7 +5,8 @@
         <div class="heightFix">
             <Cards :cards="GameStore.$state.cards.whiteCards" @toggleCard="GameStore.selectCard" />
         </div>
-        <button class="submit" @click="GameStore.submitAnswer" :style="{'--width': BlackCardWith+'px'}"> Submit
+        <button class="submit" @click="GameStore.submitAnswer" :style="{ '--width': BlackCardWith + 'px' }"
+            v-text="(!GameStore.isWaiting()) ? 'Submit' : 'Waiting'" :disabled="GameStore.isWaiting()">
         </button>
     </div>
 </template>

@@ -117,8 +117,12 @@ io.on("connection", (socket) => {
     let game = gameManager.findGame(socket.data.room)
     if (!game) return callback({ ok: false, error: "No game found" })
 
-    let error = game.startGame((socketID, cards, card, role) =>
-      io.to(socketID).emit("updateCards", cards, card, role)
+    let error = game.startGame()
+    game.players.forEach((p) =>
+      io
+        .to(p.socketID)
+        // @ts-ignore
+        .emit("updateCards", p.cards, game.currentBlackCard, p.role)
     )
     if (error) return callback({ ok: false, error })
 
@@ -143,7 +147,10 @@ io.on("connection", (socket) => {
     )
     if (error) return callback({ ok: false, error })
     io.to(`room-${socket.data.room}`).emit("updatePhase", game.phase)
-
+    io.to(`room-${socket.data.room}`).emit(
+      "updateUsers",
+      game.players.map((x) => x.getInfo())
+    )
     callback({ ok: true })
   })
 
