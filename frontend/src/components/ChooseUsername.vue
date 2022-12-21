@@ -48,4 +48,11 @@ const username = ref('')
   box-sizing: border-box;
   border: none;
 }
+
+@media (min-width: 600px) {
+  #setUsername {
+    width: 100vw;
+  }
+
+}
 </style>

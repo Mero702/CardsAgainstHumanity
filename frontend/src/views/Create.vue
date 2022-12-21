@@ -29,13 +29,16 @@
       <input type="submit" value="Upload" class="createBtn" v-else @click.prevent="upload = true" />
     </form>
     <div class="cardCount">
-      <p :style="{color: (getCount().packs < 1)? 'var(--accent-color)':'var(--color)'}">Number of packs: {{
-      getCount().packs }}</p>
-      <p :style="{color: (getCount().white < 25)?'var(--accent-color)':'var(--color)'}">Number of white cards: {{
-      getCount().white }}
+      <p :style="{ color: (getCount().packs < 1) ? 'var(--accent-color)' : 'var(--color)' }">Number of packs: {{
+          getCount().packs
+      }}</p>
+      <p :style="{ color: (getCount().white < 25) ? 'var(--accent-color)' : 'var(--color)' }">Number of white cards: {{
+          getCount().white
+      }}
       </p>
-      <p :style="{color: (getCount().black < 3)?'var(--accent-color)':'var(--color)'}">Number of black cards: {{
-      getCount().black }}
+      <p :style="{ color: (getCount().black < 3) ? 'var(--accent-color)' : 'var(--color)' }">Number of black cards: {{
+          getCount().black
+      }}
       </p>
     </div>
   </div>
@@ -137,7 +140,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 @import url("@/assets/scrollbar.css");
 
 .create,
@@ -185,20 +188,19 @@ form {
 }
 
 .cardCount {
+  margin: 0 auto;
   margin-top: 0.5em;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+  max-width: 90ch;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: .5ch
 }
 
 .cardCount>p:not(:last-child) {
   margin-right: 0.7ch;
 }
 
-.cardCount>p:not(:last-child)::after {
-  content: "|";
-  margin-left: 0.7ch;
-}
 
 .upload {
   text-align: left;

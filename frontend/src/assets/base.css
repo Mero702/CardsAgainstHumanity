@@ -12,9 +12,12 @@
 
 * {
   font-family: Helvetica-Bold, Arial, sans-serif;
+  box-sizing: border-box;
   color: var(--color);
   padding: 0;
   margin: 0;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 .heightFix {
@@ -77,16 +80,22 @@ label:hover {
   color: var(--accent-color);
 }
 
-.pillInput>*:first-child {
+.pillInput {
+  display: grid;
+  grid-template-columns: 1fr minmax(1%, min-content);
+}
+
+.pillInput > *:first-child {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
-.pillInput>*:last-child {
+.pillInput > *:last-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+  padding: 0;
+  padding-right: 0.5ch;
 }
-
 
 /* color palette from <https://github.com/vuejs/theme> */
 /* :root {

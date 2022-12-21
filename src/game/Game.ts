@@ -43,7 +43,7 @@ export default class Game {
     this.uuid = id
     this.pile = deck
     this.phase = "TBS"
-    this.round = 1
+    this.round = -1
     this.currentBlackCard = undefined
     this.usedCards = {
       name: "used",
@@ -92,7 +92,7 @@ export default class Game {
     this.players.forEach((player) => {
       this.giveCards(player)
       player.role =
-        (player.order + this.round) % this.players.length == 0
+        player.order == this.round % this.players.length
           ? "VOTING"
           : "ANSWERING"
       player.finished = this.phase != player.role
