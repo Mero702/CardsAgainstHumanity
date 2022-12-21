@@ -3,4 +3,5 @@
 /package-lock.json
 /test.js
 /decks
-/vue/package-lock.json
+/frontend/package-lock.json
+frontend/package-lock.json

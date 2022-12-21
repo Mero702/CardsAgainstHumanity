@@ -1,3 +1,5 @@
+<!-- TODO: Minimize navbar if mobile/tablet are rotated -->
+
 <template>
   <div>
     <ErrorBox />
@@ -14,6 +16,9 @@
 // TODO: change vote selection to horizontal if multiple cards
 // TODO: bug in player leave (clears card of not left player)
 // TODO: refactor css
+// TODO: submit button is cut of in voting view
+import '@/assets/scrollbar.css'
+
 import { useGameStore } from "./stores/GameStore";
 import ErrorBox from "./components/ErrorBox.vue";
 import { watch } from "vue";

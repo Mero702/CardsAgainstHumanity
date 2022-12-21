@@ -21,6 +21,7 @@ const GameStore = useGameStore();
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow-x: auto;
 }
 
 .playerList>li {

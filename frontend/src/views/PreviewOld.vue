@@ -12,7 +12,7 @@
         </div>
 
     </Flicking> -->
-    <Slider />
+    <!-- <Slider /> -->
 </template>
 
 <script lang="ts" setup>

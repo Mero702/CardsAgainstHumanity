@@ -56,13 +56,8 @@ function join() {
 
 @media(max-width: 600px) {
   .home {
-    align-content: center;
-    align-items: center;
-  }
-
-  .join>form {
-    max-width: 100vw;
-    grid-template-columns: 75% 25%;
+    grid-template-rows: 1fr 1fr;
+    margin: auto 0;
   }
 }
 
@@ -70,7 +65,6 @@ function join() {
   .home {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr fit-content(100%) 1fr;
-    margin: 0 1ch;
   }
 
   .create,

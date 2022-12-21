@@ -4,6 +4,8 @@ import { Server, Socket } from "socket.io"
 import { fileURLToPath } from "url"
 import path from "path"
 import Ajv from "ajv"
+import { config } from "dotenv"
+config()
 
 import {
   ClientToServerEvents,
@@ -27,21 +29,27 @@ const io = new Server<
   ServerToClientEvents,
   InterServerEvents,
   GameSocketData
->(server, {
-  cors: {
-    origin: "http://localhost:3001",
-    methods: ["GET", "POST"],
-  },
-})
+>(
+  server,
+  process.env?.DEVELOPMENT
+    ? {
+        cors: {
+          origin: "http://localhost:3001",
+          methods: ["GET", "POST"],
+        },
+      }
+    : {}
+)
 
-const port: number = (process.env.PORT || 3000) as number
+const port: number = (process.env?.PORT || 3000) as number
 const __dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 
-if (true || process.env.NODE_ENV == "development") {
+if (process.env?.DEVELOPMENT) {
   console.log("Running in development mode")
   const cors = await import("cors")
   app.use(cors.default())
 }
+
 app.use(Express.json())
 app.use("/", Express.static(__dirname + "/public"))
 
@@ -78,6 +86,10 @@ app.post("/api/createGame", (req: Request, res: Response) => {
 
   if (result.error) return res.status(400).json({ error: result.message })
   res.json({ roomID: result.id })
+})
+
+app.get("/*", (req: Request, res: Response) => {
+  res.sendFile(__dirname + "/public/index.html")
 })
 
 io.on("connection", (socket) => {

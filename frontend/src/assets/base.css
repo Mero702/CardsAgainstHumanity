@@ -53,12 +53,11 @@ input[type="text"] {
 
 button,
 input[type="submit"] {
+  font-size: x-large;
   color: black;
   border: none;
   border-radius: 100em;
   padding: 0.4ch 1ch;
-  font-size: 1em;
-  font-size: x-large;
   cursor: pointer;
   background-color: var(--accent-color);
 }
@@ -82,10 +81,15 @@ label:hover {
 
 .pillInput {
   display: grid;
-  grid-template-columns: 1fr minmax(1%, min-content);
+  grid-template-columns: 1fr minmax(min-content, 50%);
+  max-width: 100vw;
 }
-
+.pillInput > * {
+  border: none;
+  padding: 0 0.5ch;
+}
 .pillInput > *:first-child {
+  max-width: 20ch;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -93,8 +97,6 @@ label:hover {
 .pillInput > *:last-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  padding: 0;
-  padding-right: 0.5ch;
 }
 
 /* color palette from <https://github.com/vuejs/theme> */

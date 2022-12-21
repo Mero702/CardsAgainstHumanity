@@ -29,14 +29,14 @@
       <input type="submit" value="Upload" class="createBtn" v-else @click.prevent="upload = true" />
     </form>
     <div class="cardCount">
-      <p :style="{ color: (getCount().packs < 1) ? 'var(--accent-color)' : 'var(--color)' }">Number of packs: {{
+      <p :style="{ color: (getCount().packs < 1) ? 'var(--accent-color)' : 'var(--color)' }">Packs: {{
           getCount().packs
       }}</p>
-      <p :style="{ color: (getCount().white < 25) ? 'var(--accent-color)' : 'var(--color)' }">Number of white cards: {{
+      <p :style="{ color: (getCount().white < 25) ? 'var(--accent-color)' : 'var(--color)' }">White cards: {{
           getCount().white
       }}
       </p>
-      <p :style="{ color: (getCount().black < 3) ? 'var(--accent-color)' : 'var(--color)' }">Number of black cards: {{
+      <p :style="{ color: (getCount().black < 3) ? 'var(--accent-color)' : 'var(--color)' }">Black cards: {{
           getCount().black
       }}
       </p>
@@ -99,6 +99,7 @@ async function fetchDecks() {
       selected: false,
     }));
   } catch (e: any) {
+    console.error(e)
     GameStore.$state.error = e;
   }
 }
@@ -155,11 +156,11 @@ form {
   max-width: 90ch;
   text-align: center;
   margin: 0 auto;
+  padding: 0 1ch;
 }
 
 .decks {
   display: grid;
-  /* grid-template-columns: repeat(3, 1fr); */
   grid-template-columns: repeat(auto-fit, minmax(28ch, 1fr));
   column-gap: 1ch;
   row-gap: 0.25ch;
@@ -172,6 +173,7 @@ form {
   grid-template-columns: 1fr 1em;
   column-gap: 1ch;
   align-items: center;
+
 }
 
 .decks>div>label {
@@ -192,13 +194,25 @@ form {
   margin-top: 0.5em;
   max-width: 90ch;
 
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: .5ch
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 1ch;
+}
+
+.cardCount>p {
+  white-space: nowrap;
 }
 
 .cardCount>p:not(:last-child) {
   margin-right: 0.7ch;
+}
+
+.cardCount>p:not(:last-child)::after {
+  content: '';
+  margin: 0 1ch;
+  border: 1px solid var(--color);
+  border-radius: 1em;
 }
 
 
