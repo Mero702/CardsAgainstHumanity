@@ -80,8 +80,8 @@ label:hover {
 }
 
 .pillInput {
-  display: grid;
-  grid-template-columns: 1fr minmax(min-content, 50%);
+  display: flex;
+  flex-flow: row nowrap;
   max-width: 100vw;
 }
 .pillInput > * {
@@ -89,7 +89,6 @@ label:hover {
   padding: 0 0.5ch;
 }
 .pillInput > *:first-child {
-  max-width: 20ch;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }

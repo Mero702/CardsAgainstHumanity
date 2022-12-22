@@ -6,7 +6,7 @@
       @submit.prevent="$emit('changeUsername', username, route.params.roomID.toString())">
       <input type="text" name="username" id="username" min="3" max="48" v-model="username" placeholder="username"
         required>
-      <input type="submit" id="usernameBtn" value="Continue">
+      <input type="submit" id="usernameBtn" value="Join">
     </form>
   </div>
 </template>
