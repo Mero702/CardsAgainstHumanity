@@ -1,48 +1,22 @@
 import Express, { Application, Request, Response } from "express"
 import { createServer } from "http"
-import { Server, Socket } from "socket.io"
+import { Server } from "socket.io"
 import { fileURLToPath } from "url"
 import path from "path"
-import Ajv from "ajv"
 import { config } from "dotenv"
 config()
 
-import {
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  GameSocketData,
-} from "../types/GameSocketIOTypes"
-import DeckManager from "./game/DeckManager"
-import DeckLoader from "./game/DeckLoader"
-import GameManager from "./game/GameManager"
-import { getRandomOrder } from "./game/utils"
+import GameManager from "./game/GameManager.js"
 
 // TODO: implement socket.io middleware if they exist to check if game exist and maybe to execute and error handle the game functions.
 // TODO: maybe create an update function
 // TODO: split socket.io and express routes into different files
 const app: Application = Express()
 const server = createServer(app)
-// TODO: no cors in production
-const io = new Server<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  GameSocketData
->(
-  server,
-  process.env?.DEVELOPMENT
-    ? {
-        cors: {
-          origin: "http://localhost:3001",
-          methods: ["GET", "POST"],
-        },
-      }
-    : {}
-)
 
 const port: number = (process.env?.PORT || 3000) as number
-const __dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
+global.__dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
+global.gameManager = new GameManager()
 
 if (process.env?.DEVELOPMENT) {
   console.log("Running in development mode")
@@ -53,44 +27,27 @@ if (process.env?.DEVELOPMENT) {
 app.use(Express.json())
 app.use("/", Express.static(__dirname + "/public"))
 
-const ajv = new Ajv()
-
-const CustomDecksSchema = await import("./CustomDeckSchema.json", {
-  assert: { type: "json" },
-})
-const validateCustomDecks = ajv.compile(CustomDecksSchema)
-
-const decks = new DeckManager(
-  path.join(__dirname, "/decks/cah-cards-full.json")
-)
-const gameManager = new GameManager()
-
-app.get("/api/decks", (req: Request, res: Response) => {
-  res.json(decks.getDeckInfos())
-})
-app.post("/api/createGame", (req: Request, res: Response) => {
-  if (!("decks" in req.body || "customDecks" in req.body))
-    return res.status(400).json({ error: "No decks selected" })
-
-  const deckLoader = new DeckLoader()
-  if ("decks" in req.body) {
-    deckLoader.addDecks(req.body.decks, decks)
-  }
-  if ("customDecks" in req.body) {
-    const customDecks = req.body.customDecks
-    if (validateCustomDecks(customDecks))
-      deckLoader.addCustomDecks(req.body.customDecks)
-    else return res.status(400).json({ error: "Invalid custom deck Format" })
-  }
-  let result = gameManager.createGame(deckLoader.getDeck())
-
-  if (result.error) return res.status(400).json({ error: result.message })
-  res.json({ roomID: result.id })
-})
+const ApiRouter = await import("./apiRouter.js")
+app.use("/api", ApiRouter.default)
 
 app.get("/*", (req: Request, res: Response) => {
   res.sendFile(__dirname + "/public/index.html")
 })
+
+const SocketIOOptions = process.env?.DEVELOPMENT
+  ? {
+      cors: {
+        origin: "http://localhost:3001",
+        methods: ["GET", "POST"],
+      },
+    }
+  : {}
+const io = new Server<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  GameSocketData
+>(server, SocketIOOptions)
 
 io.on("connection", (socket) => {
   socket.on("joinRoom", (room, username, callback) => {

@@ -1,21 +1,34 @@
-import { readFileSync } from "fs";
 export default class DeckManager {
-    decks = undefined;
-    infos;
-    constructor(path) {
-        this.loadDecks(path);
+    deck;
+    constructor() {
+        this.deck = {
+            name: "deck",
+            white: [],
+            black: [],
+        };
     }
-    getDecks() {
-        return this.decks;
+    addDecks(names, manager) {
+        names.forEach((element) => {
+            let deck = manager.getDeck(element);
+            if (deck?.black != undefined)
+                this.deck.black.push(...deck.black);
+            if (deck?.white != undefined)
+                this.deck.white.push(...deck.white);
+        });
     }
-    getDeckInfos() {
-        return this.infos;
+    addCustomDecks(decks) {
+        decks.forEach((deck) => {
+            this.deck.black.push(...deck.black);
+            this.deck.white.push(...deck.white);
+        });
     }
-    getDeck(name) {
-        return this.decks.find(deck => deck.name === name);
+    countCards() {
+        return {
+            white: this.deck.white.length,
+            black: this.deck.black.length,
+        };
     }
-    async loadDecks(path) {
-        this.decks = JSON.parse(readFileSync(path, "utf8"));
-        this.infos = this.decks.map(deck => ({ name: deck.name, white: deck.white.length, black: deck.black.length }));
+    getDeck() {
+        return this.deck;
     }
 }

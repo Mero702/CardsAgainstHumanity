@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 export function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -15,4 +16,7 @@ export function* getRandomOrder(count) {
     }
     while (array.length > 0)
         yield array.shift() || 0;
+}
+export function readJSON(path) {
+    return JSON.parse(readFileSync(path, "utf8"));
 }

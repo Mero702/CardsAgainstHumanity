@@ -1,5 +1,3 @@
-import { WhiteCard, PlayerRole, PlayerInfo } from "../../types/GameTypes"
-
 export default class Player {
   socketID: string
   name: string

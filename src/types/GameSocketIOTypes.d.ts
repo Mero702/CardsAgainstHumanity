@@ -1,4 +1,4 @@
-export interface ClientToServerEvents {
+declare interface ClientToServerEvents {
   joinRoom: (
     room: string,
     username: string,
@@ -18,7 +18,7 @@ export interface ClientToServerEvents {
   leaveRoom: () => void
 }
 
-export interface ServerToClientEvents {
+declare interface ServerToClientEvents {
   updateUsers: (players: PlayerInfo[]) => void
   updateCards: (cards: Card[], blackCard: BlackCard, role: PlayerRole) => void
   updatePhase: (phase: GamePhase) => void
@@ -31,9 +31,9 @@ export interface ServerToClientEvents {
   ) => void
 }
 
-export interface InterServerEvents {}
+declare interface InterServerEvents {}
 
-export interface GameSocketData {
+declare interface GameSocketData {
   room: string
   username: string
   isHost: boolean

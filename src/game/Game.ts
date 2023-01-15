@@ -1,15 +1,5 @@
-import { getRandomOrder, shuffleArray } from "./utils"
-import Player from "./Player"
-import {
-  Deck,
-  GamePhase,
-  BlackCard,
-  Answer,
-  WhiteCard,
-  PlayerRole,
-  OrderedWhiteCard,
-  PlayerInfo,
-} from "../../types/GameTypes"
+import { getRandomOrder, shuffleArray } from "./utils.js"
+import Player from "./Player.js"
 
 class PlayerAnswerMap extends Array<[string, string]> {
   addPlayer(player: string): string {

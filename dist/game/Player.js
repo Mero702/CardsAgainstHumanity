@@ -1,28 +1,31 @@
 export default class Player {
     socketID;
     name;
-    isMaster;
+    isHost;
     order;
     score;
     cards;
-    constructor(socketID, username, isMaster) {
+    finished;
+    role;
+    constructor(socketID, username, isHost) {
         this.socketID = socketID;
         this.name = username;
-        this.isMaster = isMaster;
+        this.isHost = isHost;
         this.order = 0;
         this.score = 0;
         this.cards = [];
-    }
-    getRole(turn, playerCount) {
-        return ((turn - 1) % playerCount + 1 == this.order) ? 'voting' : 'judging';
+        this.finished = !isHost;
+        this.role = "ANSWERING";
     }
     getInfo() {
         return {
             socketID: this.socketID,
             name: this.name,
-            isMaster: this.isMaster,
+            isHost: this.isHost,
             order: this.order,
-            score: this.score
+            score: this.score,
+            finished: this.finished,
+            role: this.role,
         };
     }
 }

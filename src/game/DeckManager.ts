@@ -1,25 +1,35 @@
-import { readFileSync } from "fs";
-import { Deck, DeckInfo } from "../../types/GameTypes"
+import DeckLoader from "./DeckLoader.js"
+
 export default class DeckManager {
-    private decks: Deck[] | undefined = undefined;
-    private infos: DeckInfo[] | undefined;
+  private deck: Deck
 
-    public constructor(path: string) {
-        this.loadDecks(path);
+  constructor() {
+    this.deck = {
+      name: "deck",
+      white: [],
+      black: [],
     }
-    public getDecks(): Deck[] {
-        return this.decks!;
+  }
+  public addDecks(names: string[], manager: DeckLoader) {
+    names.forEach((element) => {
+      let deck = manager.getDeck(element)
+      if (deck?.black != undefined) this.deck.black.push(...deck.black)
+      if (deck?.white != undefined) this.deck.white.push(...deck.white)
+    })
+  }
+  public addCustomDecks(decks: Deck[]) {
+    decks.forEach((deck) => {
+      this.deck.black.push(...deck.black)
+      this.deck.white.push(...deck.white)
+    })
+  }
+  public countCards() {
+    return {
+      white: this.deck.white.length,
+      black: this.deck.black.length,
     }
-
-    public getDeckInfos(): DeckInfo[] {
-        return this.infos!;
-    }
-    public getDeck(name: string): Deck | undefined {
-        return this.decks!.find(deck => deck.name === name);
-    }
-
-    public async loadDecks(path: string): Promise<void> {
-        this.decks = JSON.parse(readFileSync(path, "utf8")) as unknown as Deck[];
-        this.infos = this.decks!.map(deck => ({ name: deck.name, white: deck.white.length, black: deck.black.length }));
-    }
+  }
+  public getDeck(): Deck {
+    return this.deck
+  }
 }

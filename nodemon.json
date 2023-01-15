@@ -2,9 +2,5 @@
     "ignore": [
         "vue/*"
     ],
-    "watch": [
-        "src"
-    ],
-    "ext": "ts",
-    "exec": "ts-node --files ./src/server.ts"
+    "trace-warnings": true
 }
