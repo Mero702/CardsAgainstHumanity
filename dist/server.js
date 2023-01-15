@@ -11,6 +11,21 @@ import GameManager from "./game/GameManager.js";
 // TODO: split socket.io and express routes into different files
 const app = Express();
 const server = createServer(app);
+const port = (process.env?.PORT || 3000);
+global.__dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+global.gameManager = new GameManager();
+if (process.env?.DEVELOPMENT) {
+    console.log("Running in development mode");
+    const cors = await import("cors");
+    app.use(cors.default());
+}
+app.use(Express.json());
+app.use("/", Express.static(__dirname + "/public"));
+const ApiRouter = await import("./apiRouter.js");
+app.use("/api", ApiRouter.default);
+app.get("/*", (req, res) => {
+    res.sendFile(__dirname + "/public/index.html");
+});
 const SocketIOOptions = process.env?.DEVELOPMENT
     ? {
         cors: {
@@ -20,21 +35,6 @@ const SocketIOOptions = process.env?.DEVELOPMENT
     }
     : {};
 const io = new Server(server, SocketIOOptions);
-const port = (process.env?.PORT || 3000);
-global.__dirname = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-if (process.env?.DEVELOPMENT) {
-    console.log("Running in development mode");
-    const cors = await import("cors");
-    app.use(cors.default());
-}
-app.use(Express.json());
-app.use("/", Express.static(__dirname + "/public"));
-global.gameManager = new GameManager();
-const ApiRouter = await import("./apiRouter.js");
-app.use("/api", ApiRouter.default);
-app.get("/*", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html");
-});
 io.on("connection", (socket) => {
     socket.on("joinRoom", (room, username, callback) => {
         // rejects a client who is already participating in a room
