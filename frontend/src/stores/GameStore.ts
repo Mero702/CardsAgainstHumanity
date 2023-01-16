@@ -1,9 +1,5 @@
 import { defineStore } from "pinia"
 import { io, Socket } from "socket.io-client"
-import type {
-  ClientToServerEvents,
-  ServerToClientEvents,
-} from "@/types/GameSocketIOTypes"
 //import socketEvents from "@/scripts/socketEvents";
 
 export type GameState = {

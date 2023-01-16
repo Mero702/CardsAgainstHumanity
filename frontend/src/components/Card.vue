@@ -1,14 +1,12 @@
 <template>
-    <div v-bind:class="{white: type == 'WHITE', black: type == 'BLACK', isSelected: isSelected}" class="card">
+    <div v-bind:class="{ white: type == 'WHITE', black: type == 'BLACK', isSelected: isSelected }" class="card">
         <p v-text="card.text" class="text"></p>
-        <p v-if="'pick' in card" v-text="'pick: '+card.pick" class="pick"></p>
+        <p v-if="'pick' in card" v-text="'pick: ' + card.pick" class="pick"></p>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import type { WhiteCard, BlackCard } from '../../../types/GameTypes';
-
 const props = defineProps<{
     type: 'WHITE' | 'BLACK'
     card: WhiteCard | BlackCard
